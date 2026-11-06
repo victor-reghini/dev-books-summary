@@ -156,3 +156,16 @@ test("Multi-idiomas: suporte aos 5 idiomas (PT, EN, ES, IT, FR) no dropdown, flu
   // Retorna para o idioma padrão PT
   i18n.setLang("pt");
 });
+
+test("Configuração de SEO: meta tags, OpenGraph e dados estruturados Schema.org (JSON-LD) para os livros", () => {
+  const indexHtml = fs.readFileSync(path.join(rootDir, "index.html"), "utf8");
+  assert.ok(indexHtml.includes('name="keywords"'), "Meta keywords deve estar presente");
+  assert.ok(indexHtml.includes("robert c martin") && indexHtml.includes("clean code"), "Keywords de Clean Code devem estar presentes");
+  assert.ok(indexHtml.includes("erich gamma") && indexHtml.includes("design patterns"), "Keywords de Padrões de Projeto (GoF) devem estar presentes");
+  assert.ok(indexHtml.includes('property="og:title"'), "Open Graph title deve estar presente");
+  assert.ok(indexHtml.includes('name="twitter:card"'), "Twitter Card deve estar presente");
+  assert.ok(indexHtml.includes('type="application/ld+json"'), "Schema.org JSON-LD deve estar presente");
+  assert.ok(indexHtml.includes('"@type": "Book"'), "Dados estruturados de Livro (Schema.org) devem estar presentes");
+  assert.ok(indexHtml.includes("Robert C. Martin") && indexHtml.includes("Erich Gamma"), "Autores dos livros devem estar presentes no JSON-LD");
+});
+

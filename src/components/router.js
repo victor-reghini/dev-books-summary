@@ -3,6 +3,7 @@ import { patternAnimations } from "../../books/design-patterns/examples/pattern-
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
 import { t } from "../../books/design-patterns/explanations/i18n.js";
 import { stopActiveVisualizerTimer } from "./pattern-visualizer.js";
+import { updatePageSEO } from "../utils/seo.js";
 import { renderBookshelfPage } from "./bookshelf-view.js";
 import { handleGofRoute } from "./gof-views.js";
 import { handleCleanCodeRoute } from "./clean-code-views.js";
@@ -49,6 +50,7 @@ export function handleRoute(contentArea) {
   stopActiveVisualizerTimer();
   const hash = window.location.hash || "#/";
   updateHeaderTelemetry(hash);
+  updatePageSEO(hash);
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 

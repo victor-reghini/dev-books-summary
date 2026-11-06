@@ -1,0 +1,12 @@
+{
+  "name": "dev-books-summary",
+  "version": "1.0.0",
+  "description": "Interactive developer book summaries classroom with explanations, before/after use cases, and exercises per book.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "node --test tests/books.test.mjs"
+  }
+}
+

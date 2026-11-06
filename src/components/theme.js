@@ -34,7 +34,7 @@ export function updateThemeButton(theme = getTheme()) {
   if (!btn) return;
   const label = theme === "dark" ? t("themeLight") : t("themeDark");
   const icon = theme === "dark" ? icons.sun : icons.moon;
-  btn.innerHTML = `${icon} <span class="theme-btn-label">${label}</span>`;
+  btn.innerHTML = `${icon}`;
   btn.title = label;
-  btn.setAttribute("aria-label", t("toggleThemeAria"));
+  btn.setAttribute("aria-label", label);
 }

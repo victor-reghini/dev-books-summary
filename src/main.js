@@ -1,24 +1,22 @@
 import { initTheme, toggleTheme, updateThemeButton } from "./components/theme.js";
 import { renderSidebar } from "./components/sidebar.js";
 import { handleRoute } from "./components/router.js";
-import { getLang, setLang, t } from "../books/design-patterns/explanations/i18n.js";
+import { initStickyNav } from "./utils/sticky-nav.js";
+import { getLang, setLang, t, SUPPORTED_LANGS } from "../books/design-patterns/explanations/i18n.js";
 
 function updateStaticChromeLabels() {
   const lang = getLang();
   document.documentElement.lang = lang === "pt" ? "pt-BR" : lang;
 
-  document.querySelectorAll(".lang-btn").forEach((btn) => {
+  const currentMeta = SUPPORTED_LANGS.find((l) => l.code === lang) || SUPPORTED_LANGS[0];
+  const flagEl = document.getElementById("current-lang-flag");
+  const codeEl = document.getElementById("current-lang-code");
+  if (flagEl) flagEl.textContent = currentMeta.flag || "🇧🇷";
+  if (codeEl) codeEl.textContent = currentMeta.short || "PT";
+
+  document.querySelectorAll(".lang-menu-item").forEach((btn) => {
     btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
   });
-
-  const estanteBtn = document.getElementById("btn-estante-principal");
-  if (estanteBtn) {
-    const labelSpan = estanteBtn.querySelector("span");
-    if (labelSpan) {
-      labelSpan.textContent =
-        lang === "en" ? "Main Bookshelf" : lang === "es" ? "Estante Principal" : "Estante Principal";
-    }
-  }
 }
 
 function initMobileSidebar() {
@@ -49,10 +47,22 @@ function initMobileSidebar() {
 }
 
 function initLanguageSwitcher() {
-  document.querySelectorAll(".lang-btn").forEach((btn) => {
+  const container = document.getElementById("lang-dropdown-container");
+  const trigger = document.getElementById("lang-dropdown-trigger");
+  if (!container || !trigger) return;
+
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = container.classList.toggle("is-open");
+    trigger.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  document.querySelectorAll(".lang-menu-item").forEach((btn) => {
     btn.addEventListener("click", () => {
       const nextLang = btn.getAttribute("data-lang");
       setLang(nextLang);
+      container.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
       updateStaticChromeLabels();
       updateThemeButton();
       const sidebar = document.getElementById("app-sidebar");
@@ -60,6 +70,21 @@ function initLanguageSwitcher() {
       renderSidebar(sidebar, window.location.hash || "#/");
       handleRoute(content);
     });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!container.contains(e.target)) {
+      container.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && container.classList.contains("is-open")) {
+      container.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.focus();
+    }
   });
 }
 
@@ -83,6 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const hash = window.location.hash || "#/";
     renderSidebar(sidebar, hash);
     handleRoute(contentArea);
+    contentArea.querySelectorAll(".pe-section-jump-nav, .pe-catalog-toolbar, .pe-filter-bar").forEach((el) => {
+      initStickyNav(el);
+    });
   }
 
   window.addEventListener("hashchange", onRouteChange);

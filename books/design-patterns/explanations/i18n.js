@@ -1,32 +1,46 @@
+import { uiStringsExtra, commonLabels, patternI18nExtra } from "./i18n-extra.js";
+import { cleanCodeI18n } from "../../clean-code/explanations/clean-code-i18n.js";
+
 const LANG_KEY = "gof_explorer_lang";
 const listeners = new Set();
 
 export const SUPPORTED_LANGS = [
-  { code: "pt", label: "Português", short: "PT" },
-  { code: "en", label: "English", short: "EN" },
-  { code: "es", label: "Español", short: "ES" }
+  { code: "pt", label: "Português", short: "PT", flag: "🇧🇷" },
+  { code: "en", label: "English", short: "EN", flag: "🇺🇸" },
+  { code: "es", label: "Español", short: "ES", flag: "🇪🇸" },
+  { code: "it", label: "Italiano", short: "IT", flag: "🇮🇹" },
+  { code: "fr", label: "Français", short: "FR", flag: "🇫🇷" }
 ];
+
+let currentActiveLang = "pt";
 
 export function getLang() {
   try {
-    const saved = localStorage.getItem(LANG_KEY);
-    if (saved && SUPPORTED_LANGS.some(l => l.code === saved)) {
-      return saved;
+    if (typeof localStorage !== "undefined") {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved && SUPPORTED_LANGS.some(l => l.code === saved)) {
+        return saved;
+      }
     }
   } catch {
     // ignore storage errors
   }
-  return "pt";
+  return currentActiveLang;
 }
 
 export function setLang(langCode) {
   if (!SUPPORTED_LANGS.some(l => l.code === langCode)) return;
+  currentActiveLang = langCode;
   try {
-    localStorage.setItem(LANG_KEY, langCode);
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(LANG_KEY, langCode);
+    }
   } catch {
     // ignore storage errors
   }
-  document.documentElement.setAttribute("lang", langCode === "pt" ? "pt-BR" : langCode);
+  if (typeof document !== "undefined" && document.documentElement) {
+    document.documentElement.setAttribute("lang", langCode === "pt" ? "pt-BR" : langCode);
+  }
   listeners.forEach(fn => fn(langCode));
 }
 
@@ -127,10 +141,10 @@ export const uiStrings = {
     nextLabel: "Próximo",
     intentTitle: "Intenção & Objetivo Arquitetural (GoF)",
     alsoKnownAs: "Também conhecido como",
-    tabVisualizer: "1. Simulador & Inspetor de Memória",
-    tabArchitecture: "2. Arquitetura, Problema & Solução",
-    tabCode: "3. Código Multi-Linguagem",
-    tabLabQuiz: "4. Laboratório Prático & Quiz",
+    tabVisualizer: "Simulador & Inspetor de Memória",
+    tabArchitecture: "Arquitetura, Problema & Solução",
+    tabCode: "Código Multi-Linguagem",
+    tabLabQuiz: "Laboratório Prático & Quiz",
     problemTitle: "Problema & Motivação no Mundo Real",
     solutionTitle: "Solução Arquitetural",
     structureTitle: "Estrutura & Participantes em Tempo de Execução",
@@ -241,10 +255,10 @@ export const uiStrings = {
     nextLabel: "Next",
     intentTitle: "Architectural Intent & Purpose (GoF)",
     alsoKnownAs: "Also known as",
-    tabVisualizer: "1. Visualizer & Memory Inspector",
-    tabArchitecture: "2. Architecture, Problem & Solution",
-    tabCode: "3. Multi-Language Code",
-    tabLabQuiz: "4. Interactive Lab & Quiz",
+    tabVisualizer: "Visualizer & Memory Inspector",
+    tabArchitecture: "Architecture, Problem & Solution",
+    tabCode: "Multi-Language Code",
+    tabLabQuiz: "Interactive Lab & Quiz",
     problemTitle: "Real-World Problem & Motivation",
     solutionTitle: "Architectural Solution",
     structureTitle: "Structure & Runtime Participants",
@@ -355,10 +369,10 @@ export const uiStrings = {
     nextLabel: "Siguiente",
     intentTitle: "Intención y Propósito Arquitectónico (GoF)",
     alsoKnownAs: "También conocido como",
-    tabVisualizer: "1. Simulador e Inspector de Memoria",
-    tabArchitecture: "2. Arquitectura, Problema y Solución",
-    tabCode: "3. Código Multi-Lenguaje",
-    tabLabQuiz: "4. Laboratorio y Quiz",
+    tabVisualizer: "Simulador e Inspector de Memoria",
+    tabArchitecture: "Arquitectura, Problema y Solución",
+    tabCode: "Código Multi-Lenguaje",
+    tabLabQuiz: "Laboratorio y Quiz",
     problemTitle: "Problema y Motivación en el Mundo Real",
     solutionTitle: "Solución Arquitectónica",
     structureTitle: "Estructura y Participantes en Tiempo de Ejecución",
@@ -382,7 +396,14 @@ export const uiStrings = {
 
 export function t(key) {
   const lang = getLang();
-  return (uiStrings[lang] && uiStrings[lang][key]) || uiStrings.pt[key] || key;
+  return (
+    (uiStrings[lang] && uiStrings[lang][key]) ||
+    (uiStringsExtra[lang] && uiStringsExtra[lang][key]) ||
+    (commonLabels[lang] && commonLabels[lang][key]) ||
+    (uiStrings.pt && uiStrings.pt[key]) ||
+    (commonLabels.pt && commonLabels.pt[key]) ||
+    key
+  );
 }
 
 /**
@@ -1093,3 +1114,15 @@ export const patternI18n = {
     }
   }
 };
+
+// Merge patternI18nExtra (IT e FR) e cleanCodeI18n (EN, ES, IT, FR)
+for (const [patId, tr] of Object.entries(patternI18nExtra)) {
+  if (!patternI18n[patId]) patternI18n[patId] = {};
+  Object.assign(patternI18n[patId], tr);
+}
+
+for (const [chId, tr] of Object.entries(cleanCodeI18n)) {
+  if (!patternI18n[chId]) patternI18n[chId] = {};
+  Object.assign(patternI18n[chId], tr);
+}
+

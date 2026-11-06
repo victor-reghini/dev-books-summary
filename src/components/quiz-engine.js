@@ -11,6 +11,8 @@ import {
 } from "../../books/clean-code/exercises/clean-code-quizzes.js";
 import { highlightCode } from "../utils/code-highlighter.js";
 import { icons } from "./icons.js";
+import { getLang, t } from "../../books/design-patterns/explanations/i18n.js";
+import { getQuizTranslation } from "../../books/design-patterns/exercises/quizzes-i18n.js";
 
 const QUIZ_PROGRESS_KEY = "gof_quiz_answers";
 const PRACTICAL_STATE_KEY = "gof_practical_exercises_state";
@@ -66,7 +68,8 @@ function savePracticalState(nextState) {
 
 function getDifficultyBadge(difficulty) {
   const meta = DIFFICULTY_META[difficulty] || DIFFICULTY_META.medio;
-  return `<span class="quiz-diff-badge ${meta.className}">Nível ${meta.label}</span>`;
+  const label = difficulty === "facil" ? t("quizEasy") : difficulty === "medio" ? t("quizMedium") : t("quizHard");
+  return `<span class="quiz-diff-badge ${meta.className}">${label || meta.label}</span>`;
 }
 
 function getCategoryBadge(category) {
@@ -77,13 +80,14 @@ function getCategoryBadge(category) {
 /**
  * Renderiza uma questão de múltipla escolha (ou cenário fictício) em um elemento container.
  */
-export function renderSingleQuiz(container, question, options = {}) {
-  if (!container || !question) return;
+export function renderSingleQuiz(container, rawQuestion, options = {}) {
+  if (!container || !rawQuestion) return;
 
+  const question = getQuizTranslation(rawQuestion, getLang());
   const savedAnswers = getSavedAnswers();
   const previouslySelected = savedAnswers[question.id];
   const isScenario = Boolean(question.context);
-  const indexLabel = options.indexLabel || (isScenario ? "Cenário de Arquitetura" : "Questão de Fixação");
+  const indexLabel = options.indexLabel || (isScenario ? (t("quizScenario") || "Cenário de Arquitetura") : (t("quizQuestion") || "Questão de Fixação"));
 
   container.innerHTML = `
     <article class="quiz-container ${isScenario ? "scenario-container" : ""}" id="quiz-${question.id}">
@@ -94,7 +98,7 @@ export function renderSingleQuiz(container, question, options = {}) {
           ${getDifficultyBadge(question.difficulty)}
         </div>
         ${question.patternId && question.patternId !== "book-overview" && !options.hidePatternLink ? `
-          <a href="${question.patternId.startsWith("cap-") ? `#/clean-code/capitulo/${question.patternId}` : `#/padrao/${question.patternId}`}" class="quiz-pattern-link">${question.patternId.startsWith("cap-") ? "Revisar capítulo" : "Revisar padrão"}</a>
+          <a href="${question.patternId.startsWith("cap-") ? `#/clean-code/capitulo/${question.patternId}` : `#/padrao/${question.patternId}`}" class="quiz-pattern-link">${question.patternId.startsWith("cap-") ? (t("quizReviewChapter") || "Revisar capítulo") : (t("quizReviewPattern") || "Revisar padrão")}</a>
         ` : ""}
       </div>
 
@@ -102,11 +106,11 @@ export function renderSingleQuiz(container, question, options = {}) {
 
       ${isScenario ? `
         <div class="scenario-context-box">
-          <div class="scenario-context-label">Contexto do Problema Fictício</div>
+          <div class="scenario-context-label">${t("quizContextLabel") || "Contexto do Problema Fictício"}</div>
           <p class="scenario-context-text">${question.context}</p>
           ${question.requirements && question.requirements.length ? `
             <div class="scenario-req-box">
-              <strong>Requisitos e Restrições da Arquitetura:</strong>
+              <strong>${t("quizReqsLabel") || "Requisitos e Restrições da Arquitetura:"}</strong>
               <ul>
                 ${question.requirements.map(req => `<li>${req}</li>`).join("")}
               </ul>
@@ -134,7 +138,7 @@ export function renderSingleQuiz(container, question, options = {}) {
       <div class="quiz-feedback-box" style="display: ${previouslySelected !== undefined ? "block" : "none"}">
         ${previouslySelected !== undefined ? `
           <div class="${question.options[previouslySelected]?.isCorrect ? "feedback-correct" : "feedback-wrong"}">
-            <strong>${question.options[previouslySelected]?.isCorrect ? "Resposta Correta!" : "Resposta Incorreta."}</strong>
+            <strong>${question.options[previouslySelected]?.isCorrect ? (t("quizCorrect") || "Resposta Correta!") : (t("quizWrong") || "Resposta Incorreta.")}</strong>
             <p>${question.explanation}</p>
           </div>
         ` : ""}

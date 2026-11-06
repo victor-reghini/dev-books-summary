@@ -8,6 +8,7 @@ import { labs } from "../../books/design-patterns/examples/labs.js";
 import { getStudiedPatterns, togglePatternStudied } from "./sidebar.js";
 import { renderPatternVisualizer, stopActiveVisualizerTimer } from "./pattern-visualizer.js";
 import { highlightCode } from "../utils/code-highlighter.js";
+import { initStickyNav } from "../utils/sticky-nav.js";
 import { icons } from "./icons.js";
 
 function getPatternLocalized(p) {
@@ -61,6 +62,11 @@ export function updateHeaderTelemetry(hash) {
 export function handleGofRoute(contentArea, hash = window.location.hash || "#/design-patterns") {
   stopActiveVisualizerTimer();
 
+  if (window.__gofPatternScrollSpyHandler) {
+    window.removeEventListener("scroll", window.__gofPatternScrollSpyHandler);
+    window.__gofPatternScrollSpyHandler = null;
+  }
+
   if (hash === "#/design-patterns" || hash === "#/livro") {
     renderHomePage(contentArea);
   } else if (hash === "#/principios") {
@@ -109,8 +115,9 @@ function renderHomePage(container) {
       <div class="pe-hero-actions">
         <a href="#/padrao/abstract-factory" class="pe-cta-btn primary">${t("heroCtaPrimary")} →</a>
         <a href="#/laboratorios" class="pe-cta-btn secondary">${t("heroCtaSecondary")}</a>
-        <a href="https://github.com/victor-reghini" target="_blank" rel="noopener noreferrer" class="pe-cta-btn ghost">
-          ${icons.github} <span>Victor Reghini</span> ${icons.externalLink}
+        <a href="https://link.amazon/B056h6M84" target="_blank" rel="noopener noreferrer" class="pe-cta-btn amazon-buy-btn" title="Comprar livro físico ou Kindle na Amazon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <span>${t("buyBook") || "Comprar Livro (Amazon)"}</span>
         </a>
       </div>
     </section>
@@ -194,6 +201,8 @@ function renderHomePage(container) {
   `;
 
   // Bind category filter buttons
+  const filterBar = container.querySelector(".pe-catalog-toolbar");
+  if (filterBar) initStickyNav(filterBar);
   const filterTabs = container.querySelectorAll(".pe-filter-tab");
   const cards = container.querySelectorAll(".pe-pattern-card");
   filterTabs.forEach(tab => {
@@ -643,19 +652,75 @@ function renderPatternPage(container, patternId) {
     renderPatternVisualizer(vizMount, p);
   }
 
-  // Section Jump Links (prevent hash route conflict!)
-  container.querySelectorAll(".pe-jump-link").forEach(link => {
-    link.addEventListener("click", e => {
+  // Section Jump Links with Smooth Scroll and ScrollSpy
+  const jumpNav = container.querySelector(".pe-section-jump-nav");
+  if (jumpNav) initStickyNav(jumpNav);
+  const jumpLinks = container.querySelectorAll(".pe-jump-link");
+  const jumpSections = [
+    { id: "sec-visualizer", el: container.querySelector("#sec-visualizer") },
+    { id: "sec-architecture", el: container.querySelector("#sec-architecture") },
+    { id: "sec-code", el: container.querySelector("#sec-code") },
+    { id: "sec-quiz", el: container.querySelector("#sec-quiz") }
+  ];
+
+  let isAutoScrollingJump = false;
+  let jumpScrollTimer = null;
+
+  function setActiveJumpLink(targetId) {
+    jumpLinks.forEach((link) => {
+      const match = link.getAttribute("data-jump") === targetId;
+      link.classList.toggle("active", match);
+      if (match && jumpNav) {
+        const navRect = jumpNav.getBoundingClientRect();
+        const linkRect = link.getBoundingClientRect();
+        if (linkRect.left < navRect.left || linkRect.right > navRect.right) {
+          link.scrollIntoView({ inline: "nearest", behavior: "smooth", block: "nearest" });
+        }
+      }
+    });
+  }
+
+  jumpLinks.forEach((link) => {
+    link.addEventListener("click", (e) => {
       e.preventDefault();
-      container.querySelectorAll(".pe-jump-link").forEach(l => l.classList.remove("active"));
-      link.classList.add("active");
       const targetId = link.getAttribute("data-jump");
+      setActiveJumpLink(targetId);
+
       const targetEl = container.querySelector(`#${targetId}`);
       if (targetEl) {
+        isAutoScrollingJump = true;
+        clearTimeout(jumpScrollTimer);
         targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        jumpScrollTimer = setTimeout(() => {
+          isAutoScrollingJump = false;
+        }, 850);
       }
     });
   });
+
+  function onPatternScroll() {
+    if (isAutoScrollingJump) return;
+    const headerOffset = 135;
+    const scrollPos = window.scrollY + headerOffset;
+
+    let activeId = jumpSections[0].id;
+    for (let i = 0; i < jumpSections.length; i++) {
+      const sec = jumpSections[i];
+      if (sec.el && sec.el.offsetTop <= scrollPos) {
+        activeId = sec.id;
+      }
+    }
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 60) {
+      activeId = jumpSections[jumpSections.length - 1].id;
+    }
+    setActiveJumpLink(activeId);
+  }
+
+  if (window.__gofPatternScrollSpyHandler) {
+    window.removeEventListener("scroll", window.__gofPatternScrollSpyHandler);
+  }
+  window.__gofPatternScrollSpyHandler = onPatternScroll;
+  window.addEventListener("scroll", onPatternScroll, { passive: true });
 
   // Bookmark Toggle
   const btnBookmark = container.querySelector("#btn-toggle-bookmark");

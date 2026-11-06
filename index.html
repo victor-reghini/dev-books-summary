@@ -1,126 +1,128 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Estante Interativa • Padrões de Projeto (GoF) & Código Limpo (Clean Code)</title>
-    <meta
-      name="description"
-      content="Plataforma interativa de livros de engenharia de software: Padrões de Projeto (23 padrões GoF) e Código Limpo (17 capítulos + 66 heurísticas de Robert C. Martin) com simuladores visuais, gráficos, laboratórios e exercícios."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="/src/styles/variables.css" />
-    <link rel="stylesheet" href="/src/styles/layout.css" />
-    <link rel="stylesheet" href="/src/styles/components.css" />
-    <link rel="stylesheet" href="/src/styles/labs.css" />
-    <link rel="stylesheet" href="/src/styles/quiz.css" />
-    <link rel="stylesheet" href="/src/styles/bookshelf.css" />
-  </head>
-  <body>
-    <div class="app-container">
-      <!-- Top Sticky Header -->
-      <header class="top-header">
-        <div class="header-left">
-          <button
-            type="button"
-            class="mobile-menu-toggle"
-            id="mobile-menu-btn"
-            aria-label="Alternar menu lateral"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
 
-          <a href="#/estante" class="logo-brand">
-            <span class="logo-badge">GOF · CC</span>
-            <div class="logo-titles">
-              <strong id="brand-title">Padrões de Projeto & Código Limpo</strong>
-              <span id="brand-subtitle">Estante Interativa • GoF (23) & Clean Code (17)</span>
-            </div>
-          </a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevBooks • Estante Interativa de Engenharia de Software</title>
+  <meta name="description"
+    content="Plataforma interativa de livros de engenharia de software: Padrões de Projeto (23 padrões GoF) e Código Limpo (17 capítulos + 66 heurísticas de Robert C. Martin) com simuladores visuais, gráficos, laboratórios e exercícios." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles/variables.css" />
+  <link rel="stylesheet" href="/src/styles/layout.css" />
+  <link rel="stylesheet" href="/src/styles/components.css" />
+  <link rel="stylesheet" href="/src/styles/labs.css" />
+  <link rel="stylesheet" href="/src/styles/quiz.css" />
+  <link rel="stylesheet" href="/src/styles/bookshelf.css" />
+</head>
 
-          <!-- Botão Estante Principal sempre visível no cabeçalho -->
-          <a href="#/estante" class="header-bookshelf-btn" id="btn-estante-principal" title="Ir para a Estante Principal de Livros">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-            <span>Estante Principal</span>
-          </a>
+<body>
+  <div class="app-container">
+    <!-- Top Sticky Header: ocupa todo o topo da página de ponta a ponta -->
+    <header class="top-header">
+      <div class="header-left">
+        <button type="button" class="mobile-menu-toggle mobile-menu-btn" id="mobile-menu-btn"
+          aria-label="Alternar menu lateral">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
 
-          <!-- Active Module Telemetry Indicator -->
-          <div class="header-active-telemetry" id="header-active-module" aria-live="polite">
-            <span class="header-status-dot"></span>
-            <span class="header-now-label">ESTANTE PRINCIPAL:</span>
-            <strong>2 LIVROS (GOF + CLEAN CODE)</strong>
-          </div>
-        </div>
-
-        <div class="header-right">
-          <div class="lang-switcher" role="group" aria-label="Idioma / Language">
-            <button type="button" class="lang-btn active" data-lang="pt" title="Português">PT</button>
-            <button type="button" class="lang-btn" data-lang="en" title="English">EN</button>
-            <button type="button" class="lang-btn" data-lang="es" title="Español">ES</button>
-          </div>
-
-          <button
-            type="button"
-            class="theme-toggle-btn"
-            id="theme-toggle-btn"
-            aria-label="Alternar tema claro/escuro"
-          ></button>
-
-          <a
-            href="https://github.com/victor-reghini"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="header-author-pill"
-            title="GitHub: victor-reghini"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-            </svg>
-            <span class="author-pill-name">Victor Reghini</span>
-          </a>
-        </div>
-      </header>
-
-      <!-- Main Layout Wrapper -->
-      <div class="main-wrapper">
-        <aside class="sidebar" id="app-sidebar" aria-label="Navegação do Livro"></aside>
-        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-        <main class="content-area" id="main-content-area"></main>
+        <a href="#/estante" class="logo-brand" title="DevBooks - Ir para a Estante">
+          <span class="logo-title" id="brand-title">DevBooks</span>
+        </a>
       </div>
 
-      <!-- Footer -->
-      <footer class="app-footer">
-        <div class="footer-inner">
-          <span id="footer-copy">
-            Estante Interativa de Engenharia de Software • <strong>Padrões de Projeto (GoF)</strong> &amp; <strong>Código Limpo (Clean Code)</strong>
-          </span>
-          <span class="footer-sep">•</span>
-          <a href="#/estante" class="footer-author-link">Estante Principal</a>
-          <span class="footer-sep">•</span>
-          <a
-            href="https://github.com/victor-reghini"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="footer-author-link"
-          >
-            Desenvolvido por <strong>Victor Reghini</strong> (GitHub)
-          </a>
+      <div class="header-right">
+        <div class="lang-dropdown-container" id="lang-dropdown-container">
+          <button type="button" class="lang-dropdown-trigger" id="lang-dropdown-trigger" aria-haspopup="true"
+            aria-expanded="false" aria-label="Selecionar idioma">
+            <span class="lang-flag" id="current-lang-flag">🇧🇷</span>
+            <span class="lang-code" id="current-lang-code">PT</span>
+            <svg class="lang-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="lang-dropdown-menu" id="lang-dropdown-menu" role="menu">
+            <button type="button" class="lang-menu-item active" data-lang="pt" role="menuitem">
+              <span class="lang-item-left"><span class="lang-item-flag">🇧🇷</span><span
+                  class="lang-item-name">Português</span></span>
+              <span class="lang-item-code">PT</span>
+            </button>
+            <button type="button" class="lang-menu-item" data-lang="en" role="menuitem">
+              <span class="lang-item-left"><span class="lang-item-flag">🇺🇸</span><span
+                  class="lang-item-name">English</span></span>
+              <span class="lang-item-code">EN</span>
+            </button>
+            <button type="button" class="lang-menu-item" data-lang="es" role="menuitem">
+              <span class="lang-item-left"><span class="lang-item-flag">🇪🇸</span><span
+                  class="lang-item-name">Español</span></span>
+              <span class="lang-item-code">ES</span>
+            </button>
+            <button type="button" class="lang-menu-item" data-lang="it" role="menuitem">
+              <span class="lang-item-left"><span class="lang-item-flag">🇮🇹</span><span
+                  class="lang-item-name">Italiano</span></span>
+              <span class="lang-item-code">IT</span>
+            </button>
+            <button type="button" class="lang-menu-item" data-lang="fr" role="menuitem">
+              <span class="lang-item-left"><span class="lang-item-flag">🇫🇷</span><span
+                  class="lang-item-name">Français</span></span>
+              <span class="lang-item-code">FR</span>
+            </button>
+          </div>
         </div>
-      </footer>
-    </div>
 
-    <script type="module" src="/src/main.js"></script>
-  </body>
+        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn"
+          aria-label="Alternar tema claro/escuro"></button>
+
+        <a href="https://github.com/victor-reghini" target="_blank" rel="noopener noreferrer"
+          class="header-profile-link header-author-btn" id="header-author-btn" title="GitHub: victor-reghini"
+          aria-label="Perfil do GitHub de Victor Reghini">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path
+              d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+            </path>
+          </svg>
+          <span class="author-pill-name profile-link-text">Victor Reghini</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Layout Wrapper: abaixo do header -->
+    <div class="main-wrapper">
+      <!-- Menu Lateral Esquerdo: ocupa toda a lateral, partindo do header até o final da página -->
+      <aside class="sidebar" id="app-sidebar" aria-label="Navegação do Livro"></aside>
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+      <!-- Área de Conteúdo + Rodapé centralizado à direita do menu lateral -->
+      <div class="main-content-wrapper">
+        <main class="content-area" id="main-content-area"></main>
+
+        <!-- Footer com conteúdo centralizado -->
+        <footer class="app-footer">
+          <div class="footer-inner">
+            <a href="#/estante" class="footer-author-link">Estante Principal</a>
+            <span class="footer-sep">•</span>
+            <a href="https://github.com/victor-reghini" target="_blank" rel="noopener noreferrer"
+              class="footer-author-link">
+              Desenvolvido por <strong>Victor Reghini</strong> (GitHub)
+            </a>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>

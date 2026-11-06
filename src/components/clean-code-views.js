@@ -2,17 +2,114 @@ import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapt
 import { cleanCodeOverview, smellsCatalog } from "../../books/clean-code/explanations/book-overview.js";
 import { cleanCodeAnimations } from "../../books/clean-code/examples/clean-code-animations.js";
 import { cleanCodeLabs } from "../../books/clean-code/examples/clean-code-labs.js";
+import { cleanCodeI18n } from "../../books/clean-code/explanations/clean-code-i18n.js";
 import { renderPatternExercises, renderQuizzesPage } from "./quiz-engine.js";
 import { getStudiedPatterns, togglePatternStudied } from "./sidebar.js";
 import { renderPatternVisualizer, stopActiveVisualizerTimer } from "./pattern-visualizer.js";
 import { highlightCode } from "../utils/code-highlighter.js";
+import { initStickyNav } from "../utils/sticky-nav.js";
 import { icons } from "./icons.js";
+import { getLang, t, patternI18n } from "../../books/design-patterns/explanations/i18n.js";
+
+function getCleanCodeLocalized(ch) {
+  const lang = getLang();
+  const tr = cleanCodeI18n[ch.id]?.[lang] || patternI18n[ch.id]?.[lang];
+  if (!tr || lang === "pt") {
+    return {
+      name: ch.name,
+      subtitle: ch.subtitle || ch.ptName,
+      intent: ch.intent,
+      problem: ch.problemAndMotivation,
+      solution: ch.solution,
+      pros: ch.consequences?.pros || [],
+      cons: ch.consequences?.cons || []
+    };
+  }
+  return {
+    name: tr.name || tr.localName || ch.name,
+    subtitle: tr.subtitle || ch.subtitle || ch.ptName,
+    intent: tr.intent || ch.intent,
+    problem: tr.problem || ch.problemAndMotivation,
+    solution: tr.solution || ch.solution,
+    pros: tr.pros || ch.consequences?.pros || [],
+    cons: tr.cons || ch.consequences?.cons || []
+  };
+}
+
+function getChapterNumberLabel(num, lang) {
+  if (lang === "en") return `Ch. ${num}`;
+  if (lang === "fr") return `Chap. ${num}`;
+  return `Cap. ${num}`;
+}
+
+function getLocalizedScope(scope, lang) {
+  const map = {
+    profissionalismo: { pt: "PROFISSIONALISMO", en: "PROFESSIONALISM", es: "PROFESIONALISMO", it: "PROFESSIONALITÀ", fr: "PROFESSIONNALISME" },
+    identificadores: { pt: "IDENTIFICADORES", en: "IDENTIFIERS", es: "IDENTIFICADORES", it: "IDENTIFICATORI", fr: "IDENTIFIANTS" },
+    funções: { pt: "FUNÇÕES", en: "FUNCTIONS", es: "FUNCIONES", it: "FUNZIONI", fr: "FONCTIONS" },
+    comunicação: { pt: "COMENTÁRIOS", en: "COMMENTS", es: "COMENTARIOS", it: "COMMENTI", fr: "COMMENTAIRES" },
+    formatação: { pt: "FORMATAÇÃO", en: "FORMATTING", es: "FORMATO", it: "FORMATTAZIONE", fr: "FORMATAGE" },
+    abstração: { pt: "OBJETOS & DADOS", en: "OBJECTS & DATA", es: "OBJETOS Y DATOS", it: "OGGETTI E DATI", fr: "OBJETS ET DONNÉES" },
+    resiliência: { pt: "TRATAMENTO DE ERROS", en: "ERROR HANDLING", es: "MANEJO DE ERRORES", it: "GESTIONE ERRORI", fr: "GESTION DES ERREURS" },
+    fronteiras: { pt: "FRONTEIRAS", en: "BOUNDARIES", es: "LÍMITES", it: "CONFINI", fr: "FRONTIÈRES" },
+    testes: { pt: "TESTES LIMPOS", en: "CLEAN TESTS", es: "PRUEBAS LIMPIAS", it: "TEST PULITI", fr: "TESTS PROPRES" },
+    classes: { pt: "CLASSES", en: "CLASSES", es: "CLASES", it: "CLASSI", fr: "CLASSES" },
+    sistemas: { pt: "SISTEMAS", en: "SYSTEMS", es: "SISTEMAS", it: "SISTEMI", fr: "SYSTÈMES" },
+    emergência: { pt: "EMERGÊNCIA", en: "EMERGENCE", es: "EMERGENCIA", it: "EMERGENZA", fr: "ÉMERGENCE" },
+    concorrência: { pt: "CONCORRÊNCIA", en: "CONCURRENCY", es: "CONCURRENCIA", it: "CONCORRENZA", fr: "CONCURRENCE" },
+    refatoração: { pt: "REFATORAÇÃO", en: "REFACTORING", es: "REFACTORIZACIÓN", it: "REFACTORING", fr: "REFACTORISATION" },
+    heurísticas: { pt: "ODORES & HEURÍSTICAS", en: "SMELLS & HEURISTICS", es: "OLORES Y HEURÍSTICAS", it: "ODORI ED EURISTICHE", fr: "ODEURS ET HEURISTIQUES" }
+  };
+  const key = (scope || "").toLowerCase().trim();
+  return map[key]?.[lang] || map[key]?.pt || (scope || "").toUpperCase();
+}
+
+function getFiveSLocalized(lang) {
+  const fiveSData = {
+    pt: [
+      { name: "Seiri", meaning: "Organização (Sort)", desc: "Saber exatamente onde as coisas estão e descartar o que é inútil • aplicando nomes que revelam intenção (Cap. 2) e removendo código morto [G9] e comentado [C5]." },
+      { name: "Seiton", meaning: "Ordem (Systematize)", desc: "Um lugar para cada pedaço de código e cada pedaço de código em seu lugar • distância vertical, afinidade conceitual (Cap. 5) e colocação onde o leitor espera [G17]." },
+      { name: "Seiso", meaning: "Limpeza (Shine)", desc: "Manter a área de trabalho livre de fios soltos, resíduos e comentários mentirosos ou obsoletos [C1-C5] (Cap. 4)." },
+      { name: "Seiketsu", meaning: "Padronização (Standardize)", desc: "A equipe concorda sobre convenções consistentes de estilo, formatação e arquitetura [G24], fazendo todo o sistema parecer escrito por uma só mente." },
+      { name: "Shutsuke", meaning: "Autodisciplina (Sustain)", desc: "Ter a disciplina diária de seguir as práticas (3 Leis do TDD, Regra do Escoteiro e Refinamento Sucessivo) e refletir constantemente sobre o próprio trabalho." }
+    ],
+    en: [
+      { name: "Seiri", meaning: "Organization (Sort)", desc: "Knowing exactly where things are and eliminating what is useless • choosing intention-revealing names (Ch. 2) and deleting dead code [G9] and commented-out code [C5]." },
+      { name: "Seiton", meaning: "Order (Systematize)", desc: "A place for every piece of code and every piece of code in its place • vertical distance, conceptual affinity (Ch. 5) and placing code where readers expect it [G17]." },
+      { name: "Seiso", meaning: "Cleanliness (Shine)", desc: "Keeping the workspace free of clutter, debris and misleading or obsolete comments [C1-C5] (Ch. 4)." },
+      { name: "Seiketsu", meaning: "Standardization (Standardize)", desc: "The team converges on consistent standards of formatting, style and architecture [G24], making the entire codebase feel authored by a single mind." },
+      { name: "Shutsuke", meaning: "Self-Discipline (Sustain)", desc: "Practicing daily discipline in following professional craft (3 Laws of TDD, Boy Scout Rule and Successive Refinement) and reflecting on your code." }
+    ],
+    es: [
+      { name: "Seiri", meaning: "Organización (Sort)", desc: "Saber exactamente dónde están las cosas y descartar lo inútil • nombres que revelan intención (Cap. 2) y eliminación de código muerto [G9] y comentado [C5]." },
+      { name: "Seiton", meaning: "Orden (Systematize)", desc: "Un lugar para cada fragmento de código y cada fragmento en su lugar • distancia vertical, afinidad conceptual (Cap. 5) y ubicación esperada [G17]." },
+      { name: "Seiso", meaning: "Limpieza (Shine)", desc: "Mantener el área de trabajo libre de desorden, residuos y comentarios obsoletos o engañosos [C1-C5] (Cap. 4)." },
+      { name: "Seiketsu", meaning: "Estandarización (Standardize)", desc: "El equipo adopta convenciones consistentes de estilo, formato y arquitectura [G24], haciendo que el sistema parezca escrito por una sola mente." },
+      { name: "Shutsuke", meaning: "Autodisciplina (Sustain)", desc: "Disciplina diaria para aplicar las prácticas (3 Leyes de TDD, Regla del Boy Scout y Refinamiento Sucesivo) y reflexionar continuamente." }
+    ],
+    it: [
+      { name: "Seiri", meaning: "Organizzazione (Sort)", desc: "Sapere esattamente dove si trovano le cose ed eliminare l'inutile • usare nomi che rivelano l'intenzione (Cap. 2) ed eliminare codice morto [G9] e commentato [C5]." },
+      { name: "Seiton", meaning: "Ordine (Systematize)", desc: "Un posto per ogni riga di codice e ogni riga al suo posto • distanza verticale, affinità concettuale (Cap. 5) e coerenza di collocazione [G17]." },
+      { name: "Seiso", meaning: "Pulizia (Shine)", desc: "Mantenere l'area di lavoro libera da residui e commenti obsoleti o fuorvianti [C1-C5] (Cap. 4)." },
+      { name: "Seiketsu", meaning: "Standardizzazione (Standardize)", desc: "Il team concorda standard coerenti di stile, formattazione e architettura [G24], facendo apparire l'intero sistema come scritto da una sola mente." },
+      { name: "Shutsuke", meaning: "Autodisciplina (Sustain)", desc: "Avere la disciplina quotidiana di seguire le pratiche (3 Leggi del TDD, Regola del Boy Scout e Raffinamento Successivo) e riflettere costantemente." }
+    ],
+    fr: [
+      { name: "Seiri", meaning: "Organisation (Trier)", desc: "Savoir exactement où sont les choses et jeter l'inutile • noms révélant l'intention (Chap. 2) et suppression du code mort [G9] ou commenté [C5]." },
+      { name: "Seiton", meaning: "Ordre (Ranger)", desc: "Une place pour chaque élément et chaque élément à sa place • proximité verticale, affinité conceptuelle (Chap. 5) et lisibilité naturelle [G17]." },
+      { name: "Seiso", meaning: "Propreté (Nettoyer)", desc: "Garder l'espace de travail net, sans scories ni commentaires obsolètes ou trompeurs [C1-C5] (Chap. 4)." },
+      { name: "Seiketsu", meaning: "Standardisation (Standardiser)", desc: "L'équipe s'accorde sur des conventions strictes de style, formatage et architecture [G24], donnant l'impression d'un code produit par un esprit unique." },
+      { name: "Shutsuke", meaning: "Discipline (Pérenniser)", desc: "Pratiquer avec rigueur au quotidien (3 Lois du TDD, Règle du Boy-Scout et Raffinement Successif) et maintenir une veille continue." }
+    ]
+  };
+  return fiveSData[lang] || fiveSData.pt;
+}
 
 function getPartLabel(cat) {
-  if (cat === "criacional") return "Parte 1 • Fundamentos";
-  if (cat === "estrutural") return "Parte 2 • Design & Qualidade";
-  if (cat === "comportamental") return "Parte 3 • Arquitetura & Escala";
-  return "Parte 4 • Casos & Heurísticas";
+  if (cat === "criacional") return t("cleanCodePart1") || "Parte 1 • Fundamentos";
+  if (cat === "estrutural") return t("cleanCodePart2") || "Parte 2 • Design & Qualidade";
+  if (cat === "comportamental") return t("cleanCodePart3") || "Parte 3 • Arquitetura & Escala";
+  return t("cleanCodePart4") || "Parte 4 • Casos & Heurísticas";
 }
 
 function getCategoryBadgeClass(cat) {
@@ -21,8 +118,43 @@ function getCategoryBadgeClass(cat) {
   return "badge-behavioral";
 }
 
+function renderChapterCard(ch, studied, lang) {
+  const isStudied = studied.includes(ch.id);
+  const loc = getCleanCodeLocalized(ch);
+  const chapterNumber = ch.id.replace("cap-", "").padStart(2, "0");
+  const chapterPrefix = getChapterNumberLabel(chapterNumber, lang);
+  return `
+    <a href="#/clean-code/capitulo/${ch.id}" class="pe-pattern-card cat-${ch.category}" data-card-cat="${ch.category}">
+      <div class="pe-card-top">
+        <span class="pe-card-code cat-${ch.category}">${ch.code}</span>
+        <div class="pe-card-badges">
+          <span class="pe-mini-scope">${getLocalizedScope(ch.scope, lang)}</span>
+          <span class="pe-mini-page">P. ${ch.gofPage}</span>
+          ${isStudied ? `<span class="pe-mini-studied" title="${t("completedTooltip") || "Concluído"}">✓</span>` : ""}
+        </div>
+      </div>
+      <h3 class="pe-card-title">${chapterPrefix} • ${loc.name}</h3>
+      <div class="pe-card-subtitle">${loc.subtitle}</div>
+      <p class="pe-card-intent">${loc.intent}</p>
+      <div class="pe-card-footer">
+        <span class="pe-card-cat-tag">${getPartLabel(ch.category)}</span>
+        <span class="pe-card-explore">${t("heroCardExplore") || "Explorar"} →</span>
+      </div>
+    </a>
+  `;
+}
+
 export function handleCleanCodeRoute(contentArea, hash = window.location.hash || "#/clean-code") {
   stopActiveVisualizerTimer();
+
+  if (window.__ccScrollSpyHandler) {
+    window.removeEventListener("scroll", window.__ccScrollSpyHandler);
+    window.__ccScrollSpyHandler = null;
+  }
+  if (window.__chapterScrollSpyHandler) {
+    window.removeEventListener("scroll", window.__chapterScrollSpyHandler);
+    window.__chapterScrollSpyHandler = null;
+  }
 
   if (hash === "#/clean-code") {
     renderCleanCodeHomePage(contentArea);
@@ -52,65 +184,69 @@ export function handleCleanCodeRoute(contentArea, hash = window.location.hash ||
 
 function renderCleanCodeHomePage(container) {
   const studied = getStudiedPatterns("clean-code");
+  const lang = getLang();
+
+  const parts = [
+    { id: "sec-fundamentos", cat: "criacional", title: t("ccFilterPart1") || "1. Fundamentos (Cap. 1-5)" },
+    { id: "sec-design", cat: "estrutural", title: t("ccFilterPart2") || "2. Design & Testes (Cap. 6-9)" },
+    { id: "sec-arquitetura", cat: "comportamental", title: t("ccFilterPart3") || "3. Arquitetura & Concorrência (Cap. 10-13)" },
+    { id: "sec-estudos-de-caso", cat: "estudos-de-caso", title: t("ccFilterPart4") || "4. Estudos de Caso & Odores (Cap. 14-17)" }
+  ];
 
   container.innerHTML = `
     <!-- Protocol Explorer Style Hero Banner for Clean Code -->
-    <section class="pe-home-hero">
+    <section class="pe-home-hero" id="sec-hero">
       <div class="pe-hero-top-row">
-        <span class="pe-hero-kicker">ROBERT C. MARTIN (UNCLE BOB) • ARTESANATO DE SOFTWARE ÁGIL</span>
+        <span class="pe-hero-kicker">${t("ccHeroKicker")}</span>
         <div class="pe-hero-stats">
-          <span class="pe-stat-chip">17 Capítulos</span>
-          <span class="pe-stat-chip">66 Heurísticas (C1–T9)</span>
-          <span class="pe-stat-chip">85 Etapas Animadas</span>
-          <span class="pe-stat-chip">Antes (Sujo) vs. Java · TS · Python</span>
+          <span class="pe-stat-chip">${t("ccStatChapters")}</span>
+          <span class="pe-stat-chip">${t("ccStatHeuristics")}</span>
+          <span class="pe-stat-chip">${t("ccStatSteps")}</span>
+          <span class="pe-stat-chip">${t("ccStatDirtyClean")}</span>
         </div>
       </div>
 
-      <h1 class="pe-hero-title">Código Limpo: Habilidades Práticas do Agile Software</h1>
-      <p class="pe-hero-subtitle">
-        Explore interativamente os 17 capítulos de <em>Clean Code</em> com simuladores visuais de execução e refatoração passo a passo, gráficos da curva de produtividade (Wading vs. Regra do Escoteiro), código comparativo Antes vs. Depois, laboratórios práticos e catálogo completo dos 66 Odores e Heurísticas.
+      <h1 class="pe-hero-title">${t("ccHeroTitle")}</h1>
+      <p class="pe-hero-desc">
+        ${t("ccHeroSubtitle")}
       </p>
 
       <div class="pe-hero-actions">
-        <a href="#/clean-code/capitulo/cap-1" class="pe-cta-btn primary">Iniciar pelo Capítulo 01 (Código Limpo) →</a>
-        <a href="#/clean-code/laboratorios" class="pe-cta-btn secondary">6 Playgrounds & Gráficos</a>
-        <a href="#/clean-code/matriz-odores" class="pe-cta-btn secondary">Catálogo 66 Odores (C1–T9)</a>
-        <a href="#/clean-code/quizzes" class="pe-cta-btn secondary">Quizzes, Cenários & Prática</a>
+        <a href="#/clean-code/capitulo/cap-1" class="pe-cta-btn primary">${t("ccCtaStart")}</a>
+        <a href="#/clean-code/laboratorios" class="pe-cta-btn secondary">${t("ccCtaLabs")}</a>
+        <a href="#/clean-code/matriz-odores" class="pe-cta-btn secondary">${t("ccCtaSmells")}</a>
+        <a href="#/clean-code/quizzes" class="pe-cta-btn secondary">${t("ccCtaQuizzes")}</a>
+        <a href="https://link.amazon/B0b1hcoN2" target="_blank" rel="noopener noreferrer" class="pe-cta-btn amazon-buy-btn" title="${t("buyBookTooltip") || "Comprar livro físico ou Kindle na Amazon"}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <span>${t("buyBook") || "Comprar Livro (Amazon)"}</span>
+        </a>
       </div>
     </section>
 
-    <!-- Category Filter Bar -->
-    <div class="pe-filter-bar" role="tablist" aria-label="Filtrar capítulos por parte">
-      <button type="button" class="pe-filter-tab active" data-cat-filter="all">Todos os Capítulos (17)</button>
-      <button type="button" class="pe-filter-tab" data-cat-filter="criacional">1. Fundamentos (Cap. 1–5)</button>
-      <button type="button" class="pe-filter-tab" data-cat-filter="estrutural">2. Design & Testes (Cap. 6–9)</button>
-      <button type="button" class="pe-filter-tab" data-cat-filter="comportamental">3. Arquitetura & Concorrência (Cap. 10–13)</button>
-      <button type="button" class="pe-filter-tab" data-cat-filter="estudos-de-caso">4. Estudos de Caso & Odores (Cap. 14–17)</button>
+    <!-- Category Filter Bar (Sticky ScrollSpy Navigation) -->
+    <div class="pe-filter-bar" role="tablist" aria-label="Navegar pelos capítulos por parte" id="cc-sticky-tabs">
+      <button type="button" class="pe-filter-tab active" data-cat-filter="all" data-target-sec="sec-hero">${t("ccFilterAll")}</button>
+      <button type="button" class="pe-filter-tab" data-cat-filter="criacional" data-target-sec="sec-fundamentos">${t("ccFilterPart1")}</button>
+      <button type="button" class="pe-filter-tab" data-cat-filter="estrutural" data-target-sec="sec-design">${t("ccFilterPart2")}</button>
+      <button type="button" class="pe-filter-tab" data-cat-filter="comportamental" data-target-sec="sec-arquitetura">${t("ccFilterPart3")}</button>
+      <button type="button" class="pe-filter-tab" data-cat-filter="estudos-de-caso" data-target-sec="sec-estudos-de-caso">${t("ccFilterPart4")}</button>
     </div>
 
-    <!-- 17 Chapters Interactive Grid -->
-    <div class="pe-patterns-grid" id="cc-chapters-grid">
-      ${cleanCodeChaptersData
-        .map((ch) => {
-          const isStudied = studied.includes(ch.id);
+    <!-- 17 Chapters Grouped by Part with Sticky ScrollSpy Targets -->
+    <div class="cc-chapters-container" id="cc-chapters-grid">
+      ${parts
+        .map((part) => {
+          const partChapters = cleanCodeChaptersData.filter((c) => c.category === part.cat);
           return `
-            <a href="#/clean-code/capitulo/${ch.id}" class="pe-pattern-card cat-${ch.category}" data-card-cat="${ch.category}">
-              <div class="pe-card-top">
-                <span class="pe-card-code cat-${ch.category}">${ch.code}</span>
-                <div class="pe-card-badges">
-                  <span class="pe-mini-scope">${ch.scope.toUpperCase()}</span>
-                  <span class="pe-mini-page">P. ${ch.gofPage}</span>
-                  ${isStudied ? `<span class="pe-mini-studied" title="Concluído">✓</span>` : ""}
-                </div>
+            <section class="cc-chapter-section" id="${part.id}" data-section-cat="${part.cat}">
+              <h2 class="cc-section-header">
+                <span class="cc-section-dot cat-${part.cat}"></span>
+                <span class="cc-section-title">${part.title}</span>
+              </h2>
+              <div class="pe-patterns-grid">
+                ${partChapters.map((ch) => renderChapterCard(ch, studied, lang)).join("")}
               </div>
-              <h3 class="pe-card-title">${ch.name}</h3>
-              <div class="pe-card-subtitle">${ch.ptName}</div>
-              <p class="pe-card-intent">${ch.intent}</p>
-              <div class="pe-card-footer">
-                <span class="pe-card-cat-tag">${getPartLabel(ch.category)}</span>
-                <span class="pe-card-arrow">Explorar →</span>
-              </div>
-            </a>
+            </section>
           `;
         })
         .join("")}
@@ -134,14 +270,14 @@ function renderCleanCodeHomePage(container) {
         .join("")}
     </div>
 
-    <h2 class="section-title mt-4">A Filosofia 5S Aplicada ao Código (Prefácio de James O. Coplien)</h2>
+    <h2 class="section-title mt-4">${t("ccFiveSTitle")}</h2>
     <div class="grid-2 mt-3">
-      ${cleanCodeOverview.fiveSPhilosophy
+      ${getFiveSLocalized(lang)
         .map(
           (s) => `
         <div class="info-card">
-          <h4 style="color: var(--accent-primary)">${s.japanese} • ${s.pt}</h4>
-          <p style="font-size: 0.9rem">${s.description}</p>
+          <h4 style="color: var(--accent-primary)">${s.name} • ${s.meaning}</h4>
+          <p style="font-size: 0.9rem">${s.desc}</p>
         </div>
       `
         )
@@ -150,21 +286,78 @@ function renderCleanCodeHomePage(container) {
   `;
 
   const filterTabs = container.querySelectorAll(".pe-filter-tab");
-  const cards = container.querySelectorAll(".pe-pattern-card");
+  const filterBar = container.querySelector("#cc-sticky-tabs");
+  const heroSection = container.querySelector("#sec-hero");
+  if (filterBar) initStickyNav(filterBar);
+
+  const navSections = [
+    { target: "all", id: "sec-hero", el: heroSection },
+    ...parts.map((p) => ({ target: p.cat, id: p.id, el: container.querySelector("#" + p.id) }))
+  ];
+
+  let isAutoScrolling = false;
+  let scrollTimer = null;
+
+  function setActiveTab(cat) {
+    filterTabs.forEach((tab) => {
+      const isMatch = tab.getAttribute("data-cat-filter") === cat;
+      tab.classList.toggle("active", isMatch);
+      if (isMatch && filterBar) {
+        const barRect = filterBar.getBoundingClientRect();
+        const tabRect = tab.getBoundingClientRect();
+        if (tabRect.left < barRect.left || tabRect.right > barRect.right) {
+          tab.scrollIntoView({ inline: "nearest", behavior: "smooth", block: "nearest" });
+        }
+      }
+    });
+  }
+
   filterTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
-      filterTabs.forEach((btn) => btn.classList.remove("active"));
-      tab.classList.add("active");
       const cat = tab.getAttribute("data-cat-filter");
-      cards.forEach((card) => {
-        if (cat === "all" || card.getAttribute("data-card-cat") === cat) {
-          card.style.display = "flex";
-        } else {
-          card.style.display = "none";
-        }
-      });
+      const targetSecId = tab.getAttribute("data-target-sec");
+      const targetEl = container.querySelector("#" + targetSecId);
+
+      setActiveTab(cat);
+
+      if (targetEl) {
+        isAutoScrolling = true;
+        clearTimeout(scrollTimer);
+        targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        scrollTimer = setTimeout(() => {
+          isAutoScrolling = false;
+        }, 850);
+      }
     });
   });
+
+  function onScroll() {
+    if (isAutoScrolling) return;
+    const headerOffset = 135;
+    const scrollPos = window.scrollY + headerOffset;
+
+    let activeCat = "all";
+
+    if (heroSection && window.scrollY > heroSection.offsetHeight * 0.45) {
+      for (let i = 1; i < navSections.length; i++) {
+        const item = navSections[i];
+        if (item.el && item.el.offsetTop <= scrollPos) {
+          activeCat = item.target;
+        }
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 60) {
+        activeCat = navSections[navSections.length - 1].target;
+      }
+    }
+
+    setActiveTab(activeCat);
+  }
+
+  if (window.__ccScrollSpyHandler) {
+    window.removeEventListener("scroll", window.__ccScrollSpyHandler);
+  }
+  window.__ccScrollSpyHandler = onScroll;
+  window.addEventListener("scroll", onScroll, { passive: true });
 }
 
 function renderCleanCodeChapterPage(container, chapterId) {
@@ -183,10 +376,16 @@ function renderCleanCodeChapterPage(container, chapterId) {
 
   const prevChapter = chIndex > 0 ? cleanCodeChaptersData[chIndex - 1] : null;
   const nextChapter = chIndex < cleanCodeChaptersData.length - 1 ? cleanCodeChaptersData[chIndex + 1] : null;
+  const prevLoc = prevChapter ? getCleanCodeLocalized(prevChapter) : null;
+  const nextLoc = nextChapter ? getCleanCodeLocalized(nextChapter) : null;
+  const lang = getLang();
 
   const studied = getStudiedPatterns("clean-code");
   const isStudied = studied.includes(ch.id);
   const categoryBadgeClass = getCategoryBadgeClass(ch.category);
+  const loc = getCleanCodeLocalized(ch);
+  const chapterNumber = ch.id.replace("cap-", "").padStart(2, "0");
+  const chapterPrefix = getChapterNumberLabel(chapterNumber, lang);
 
   container.innerHTML = `
     <!-- Top Navigation & Completion Bar -->
@@ -194,20 +393,20 @@ function renderCleanCodeChapterPage(container, chapterId) {
       <div class="pager-buttons">
         ${
           prevChapter
-            ? `<a href="#/clean-code/capitulo/${prevChapter.id}" class="pager-btn">← Anterior: ${prevChapter.name}</a>`
-            : `<a href="#/clean-code" class="pager-btn">← Catálogo Código Limpo</a>`
+            ? `<a href="#/clean-code/capitulo/${prevChapter.id}" class="pager-btn">← ${t("navPrev") || "Anterior"}: ${prevLoc.name}</a>`
+            : `<a href="#/clean-code" class="pager-btn">← ${t("navCleanCodeCatalog") || "Catálogo Código Limpo"}</a>`
         }
       </div>
 
       <button type="button" class="bookmark-action-btn ${isStudied ? "marked" : ""}" id="btn-toggle-bookmark">
-        ${isStudied ? `${icons.bookmarkCheck} <span>Concluído</span>` : `${icons.bookmark} <span>Marcar como Estudado</span>`}
+        ${isStudied ? `${icons.bookmarkCheck} <span>${t("completedLabel") || "Concluído"}</span>` : `${icons.bookmark} <span>${t("markAsStudied") || "Marcar como Estudado"}</span>`}
       </button>
 
       <div class="pager-buttons">
         ${
           nextChapter
-            ? `<a href="#/clean-code/capitulo/${nextChapter.id}" class="pager-btn next-btn">Próximo: ${nextChapter.name} →</a>`
-            : `<a href="#/clean-code/quizzes" class="pager-btn next-btn">Quizzes & Prática →</a>`
+            ? `<a href="#/clean-code/capitulo/${nextChapter.id}" class="pager-btn next-btn">${t("navNext") || "Próximo"}: ${nextLoc.name} →</a>`
+            : `<a href="#/clean-code/quizzes" class="pager-btn next-btn">${t("quizzesPractice") || "Quizzes & Prática"} →</a>`
         }
       </div>
     </div>
@@ -216,25 +415,25 @@ function renderCleanCodeChapterPage(container, chapterId) {
     <div class="pattern-header-card">
       <div class="pattern-meta-badges">
         <span class="badge ${categoryBadgeClass}">${ch.code} • ${getPartLabel(ch.category)}</span>
-        <span class="badge badge-scope">ESCOPO: ${ch.scope.toUpperCase()}</span>
-        <span class="badge badge-scope">Pág. Clean Code: ${ch.gofPage}</span>
+        <span class="badge badge-scope">${t("scopeLabel") || "ESCOPO"}: ${getLocalizedScope(ch.scope, lang)}</span>
+        <span class="badge badge-scope">${t("pageLabel") || "Pág."} Clean Code: ${ch.gofPage}</span>
         ${ch.smellRefs?.length ? `<span class="badge badge-scope">Heurísticas: ${ch.smellRefs.join(", ")}</span>` : ""}
       </div>
 
-      <h1 class="page-title">${ch.name} <small class="pattern-local-subtitle">(${ch.ptName})</small></h1>
+      <h1 class="page-title">${chapterPrefix} • ${loc.name} <small class="pattern-local-subtitle">(${loc.subtitle})</small></h1>
 
       <div class="callout callout-info" style="margin-top: 0.75rem; margin-bottom: 0">
-        <h5>Tese Central & Regra de Ouro (Robert C. Martin)</h5>
-        <p style="font-size: 1.02rem; font-weight: 500">${ch.intent}</p>
+        <h5>${t("intentTitle") || "Tese Central & Regra de Ouro (Robert C. Martin)"}</h5>
+        <p style="font-size: 1.02rem; font-weight: 500">${loc.intent}</p>
       </div>
     </div>
 
-    <!-- Quick Jump Workspace Tabs -->
+    <!-- Quick Jump Workspace Tabs (Sticky ScrollSpy Navigation) -->
     <nav class="pe-section-jump-nav" aria-label="Seções do Capítulo">
-      <a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">1. Simulador Visual & Fluxo</a>
-      <a href="#sec-architecture" class="pe-jump-link" data-jump="sec-architecture">2. Problema, Solução & Regras</a>
-      <a href="#sec-code" class="pe-jump-link" data-jump="sec-code">3. Código Sujo vs. Limpo (4 Abas)</a>
-      <a href="#sec-quiz" class="pe-jump-link" data-jump="sec-quiz">4. Laboratório Gráfico & Quiz</a>
+      <a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>
+      <a href="#sec-architecture" class="pe-jump-link" data-jump="sec-architecture">${t("tabArchitecture")}</a>
+      <a href="#sec-code" class="pe-jump-link" data-jump="sec-code">${t("tabCode")}</a>
+      <a href="#sec-quiz" class="pe-jump-link" data-jump="sec-quiz">${t("tabLabQuiz")}</a>
     </nav>
 
     <!-- 1. Interactive Step-by-Step Visualizer & Object Inspector -->
@@ -244,14 +443,14 @@ function renderCleanCodeChapterPage(container, chapterId) {
 
     <!-- 2. Problem, Solution & Structure -->
     <div id="sec-architecture">
-      <h2 class="section-title">Problema, Sintomas de Código Sujo & Motivação</h2>
+      <h2 class="section-title">${t("problemTitle") || "Problema, Sintomas de Código Sujo & Motivação"}</h2>
       <div class="info-card">
-        <p style="white-space: pre-line; line-height: 1.65">${ch.problemAndMotivation}</p>
+        <p style="white-space: pre-line; line-height: 1.65">${loc.problem}</p>
       </div>
 
-      <h2 class="section-title">Solução & Disciplina de Código Limpo</h2>
+      <h2 class="section-title">${t("solutionTitle") || "Solução & Disciplina de Código Limpo"}</h2>
       <div class="info-card">
-        <p style="white-space: pre-line; line-height: 1.65">${ch.solution}</p>
+        <p style="white-space: pre-line; line-height: 1.65">${loc.solution}</p>
       </div>
 
       <h2 class="section-title">Diretrizes & Conceitos-Chave do Capítulo</h2>
@@ -272,18 +471,18 @@ function renderCleanCodeChapterPage(container, chapterId) {
         </ul>
       </div>
 
-      <h2 class="section-title">Consequências e Trade-offs</h2>
+      <h2 class="section-title">${t("consequencesTitle") || "Consequências e Trade-offs"}</h2>
       <div class="tradeoffs-container">
         <div class="tradeoff-card tradeoff-pros">
-          <h5>Benefícios Diretos (Prós)</h5>
+          <h5>${t("prosTitle") || "Benefícios Diretos (Prós)"}</h5>
           <ul>
-            ${ch.consequences.pros.map((pro) => `<li>${pro}</li>`).join("")}
+            ${loc.pros.map((pro) => `<li>${pro}</li>`).join("")}
           </ul>
         </div>
         <div class="tradeoff-card tradeoff-cons">
-          <h5>Cuidados & Disciplina Exigida</h5>
+          <h5>${t("consTitle") || "Cuidados & Disciplina Exigida"}</h5>
           <ul>
-            ${ch.consequences.cons.map((con) => `<li>${con}</li>`).join("")}
+            ${loc.cons.map((con) => `<li>${con}</li>`).join("")}
           </ul>
         </div>
       </div>
@@ -381,19 +580,75 @@ function renderCleanCodeChapterPage(container, chapterId) {
     renderPatternVisualizer(vizMount, ch);
   }
 
-  // Section Jump Links
-  container.querySelectorAll(".pe-jump-link").forEach((link) => {
+  // Section Jump Links with Smooth Scroll and ScrollSpy
+  const jumpNav = container.querySelector(".pe-section-jump-nav");
+  if (jumpNav) initStickyNav(jumpNav);
+  const jumpLinks = container.querySelectorAll(".pe-jump-link");
+  const jumpSections = [
+    { id: "sec-visualizer", el: container.querySelector("#sec-visualizer") },
+    { id: "sec-architecture", el: container.querySelector("#sec-architecture") },
+    { id: "sec-code", el: container.querySelector("#sec-code") },
+    { id: "sec-quiz", el: container.querySelector("#sec-quiz") }
+  ];
+
+  let isAutoScrollingJump = false;
+  let jumpScrollTimer = null;
+
+  function setActiveJumpLink(targetId) {
+    jumpLinks.forEach((link) => {
+      const match = link.getAttribute("data-jump") === targetId;
+      link.classList.toggle("active", match);
+      if (match && jumpNav) {
+        const navRect = jumpNav.getBoundingClientRect();
+        const linkRect = link.getBoundingClientRect();
+        if (linkRect.left < navRect.left || linkRect.right > navRect.right) {
+          link.scrollIntoView({ inline: "nearest", behavior: "smooth", block: "nearest" });
+        }
+      }
+    });
+  }
+
+  jumpLinks.forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      container.querySelectorAll(".pe-jump-link").forEach((l) => l.classList.remove("active"));
-      link.classList.add("active");
       const targetId = link.getAttribute("data-jump");
+      setActiveJumpLink(targetId);
+
       const targetEl = container.querySelector(`#${targetId}`);
       if (targetEl) {
+        isAutoScrollingJump = true;
+        clearTimeout(jumpScrollTimer);
         targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        jumpScrollTimer = setTimeout(() => {
+          isAutoScrollingJump = false;
+        }, 850);
       }
     });
   });
+
+  function onChapterScroll() {
+    if (isAutoScrollingJump) return;
+    const headerOffset = 135;
+    const scrollPos = window.scrollY + headerOffset;
+
+    let activeId = jumpSections[0].id;
+    for (let i = 0; i < jumpSections.length; i++) {
+      const sec = jumpSections[i];
+      if (sec.el && sec.el.offsetTop <= scrollPos) {
+        activeId = sec.id;
+      }
+    }
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 60) {
+      activeId = jumpSections[jumpSections.length - 1].id;
+    }
+    setActiveJumpLink(activeId);
+  }
+
+  if (window.__chapterScrollSpyHandler) {
+    window.removeEventListener("scroll", window.__chapterScrollSpyHandler);
+  }
+  window.__chapterScrollSpyHandler = onChapterScroll;
+  window.addEventListener("scroll", onChapterScroll, { passive: true });
 
   // Bookmark Toggle
   const btnBookmark = container.querySelector("#btn-toggle-bookmark");

@@ -1,6 +1,8 @@
 import { patternsData } from "../../books/design-patterns/explanations/patterns-data.js";
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
 import { getStudiedPatterns } from "./sidebar.js";
+import { t } from "../../books/design-patterns/explanations/i18n.js";
+import { icons } from "./icons.js";
 
 export function renderBookshelfPage(container) {
   const gofStudied = getStudiedPatterns("design-patterns").length;
@@ -14,7 +16,7 @@ export function renderBookshelfPage(container) {
   container.innerHTML = `
     <section class="pe-home-hero">
       <div class="pe-hero-top-row">
-        <span class="pe-hero-kicker">ESTANTE PRINCIPAL • ENGENHARIA & ARQUITETURA DE SOFTWARE INTERATIVA</span>
+        <span class="pe-hero-kicker">${t("mainBookshelfTag")}</span>
         <div class="pe-hero-stats">
           <span class="pe-stat-chip">2 Livros Clássicos Completos</span>
           <span class="pe-stat-chip">40 Módulos Animados (200 Etapas)</span>
@@ -23,9 +25,9 @@ export function renderBookshelfPage(container) {
         </div>
       </div>
 
-      <h1 class="pe-hero-title">Estante Principal • Livros Interativos de Engenharia de Software</h1>
+      <h1 class="pe-hero-title">${t("mainBookshelfHeadline")}</h1>
       <p class="pe-hero-subtitle">
-        Selecione um livro na estante abaixo clicando sobre sua capa para acessar o guia interativo completo com simuladores passo a passo de topologia e execução, exemplos visuais e gráficos, código comparativo multi-linguagem, laboratórios práticos e exercícios.
+        ${t("mainBookshelfSub")}
       </p>
     </section>
 
@@ -83,7 +85,7 @@ export function renderBookshelfPage(container) {
         <div class="bookshelf-item-details">
           <div class="bookshelf-meta-top">
             <span class="badge badge-structural">CATÁLOGO GOF COMPLETO • 23 PADRÕES</span>
-            <span class="badge badge-scope">PT · EN · ES</span>
+            <span class="badge badge-scope">PT · EN · ES · IT · FR</span>
           </div>
 
           <h2 class="bookshelf-book-title">
@@ -114,9 +116,18 @@ export function renderBookshelfPage(container) {
           </div>
 
           <div class="bookshelf-cta-row">
-            <a href="#/design-patterns" class="pe-cta-btn primary">Abrir Livro: Padrões de Projeto →</a>
-            <a href="#/laboratorios" class="pe-cta-btn secondary">9 Labs GoF</a>
-            <a href="#/quizzes" class="pe-cta-btn secondary">Exercícios GoF</a>
+            <a href="#/design-patterns" class="pe-cta-btn primary bookshelf-icon-btn" title="${t("openBookGof") || "Abrir Livro: Padrões de Projeto"}" aria-label="${t("openBookGof") || "Abrir Livro: Padrões de Projeto"}">
+              ${icons.bookOpen}
+            </a>
+            <a href="#/laboratorios" class="pe-cta-btn secondary bookshelf-icon-btn" title="${t("labsGof") || "9 Labs GoF"}" aria-label="${t("labsGof") || "9 Labs GoF"}">
+              ${icons.flask}
+            </a>
+            <a href="#/quizzes" class="pe-cta-btn secondary bookshelf-icon-btn" title="${t("exercisesGof") || "Exercícios GoF"}" aria-label="${t("exercisesGof") || "Exercícios GoF"}">
+              ${icons.puzzle}
+            </a>
+            <a href="https://link.amazon/B056h6M84" target="_blank" rel="noopener noreferrer" class="pe-cta-btn secondary bookshelf-icon-btn amazon-buy-btn" title="${t("buyBookTooltip") || "Comprar livro na Amazon"}" aria-label="${t("buyBook") || "Comprar Livro (Amazon)"}">
+              ${icons.cart}
+            </a>
           </div>
         </div>
       </article>
@@ -206,9 +217,18 @@ export function renderBookshelfPage(container) {
           </div>
 
           <div class="bookshelf-cta-row">
-            <a href="#/clean-code" class="pe-cta-btn primary">Abrir Livro: Código Limpo →</a>
-            <a href="#/clean-code/laboratorios" class="pe-cta-btn secondary">6 Labs & Gráficos</a>
-            <a href="#/clean-code/quizzes" class="pe-cta-btn secondary">Exercícios Clean Code</a>
+            <a href="#/clean-code" class="pe-cta-btn primary bookshelf-icon-btn" title="${t("openBookCC") || "Abrir Livro: Código Limpo"}" aria-label="${t("openBookCC") || "Abrir Livro: Código Limpo"}">
+              ${icons.bookOpen}
+            </a>
+            <a href="#/clean-code/laboratorios" class="pe-cta-btn secondary bookshelf-icon-btn" title="${t("labsCC") || "6 Labs & Gráficos"}" aria-label="${t("labsCC") || "6 Labs & Gráficos"}">
+              ${icons.flask}
+            </a>
+            <a href="#/clean-code/quizzes" class="pe-cta-btn secondary bookshelf-icon-btn" title="${t("exercisesCC") || "Exercícios Clean Code"}" aria-label="${t("exercisesCC") || "Exercícios Clean Code"}">
+              ${icons.puzzle}
+            </a>
+            <a href="https://link.amazon/B0b1hcoN2" target="_blank" rel="noopener noreferrer" class="pe-cta-btn secondary bookshelf-icon-btn amazon-buy-btn" title="${t("buyBookTooltip") || "Comprar livro na Amazon"}" aria-label="${t("buyBook") || "Comprar Livro (Amazon)"}">
+              ${icons.cart}
+            </a>
           </div>
         </div>
       </article>

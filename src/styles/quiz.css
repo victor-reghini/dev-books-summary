@@ -31,7 +31,7 @@
 
 .exercise-mode-tab.active {
   background-color: var(--accent-solid-bg);
-  border-color: var(--accent-solid-bg);
+  border-color: var(--border-strong);
   color: var(--accent-solid-text);
 }
 
@@ -241,7 +241,7 @@
 
 .quiz-option-item:hover:not(.answered) {
   background-color: var(--bg-sidebar-hover);
-  border-color: var(--accent-primary);
+  border-color: var(--border-strong);
 }
 
 .option-marker {

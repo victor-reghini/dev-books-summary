@@ -21,6 +21,7 @@ export const designPatternsBook = {
   author: bookOverview.authors.map((a) => a.name).join(", "),
   year: bookOverview.publicationYear,
   editionPt: bookOverview.editionPt,
+  affiliateUrl: "https://link.amazon/B056h6M84",
   status: "ready",
   patternsData,
   bookOverview,

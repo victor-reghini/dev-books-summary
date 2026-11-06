@@ -2,13 +2,18 @@ import { patternAnimations, buildObjectInspectorState } from "../../books/design
 import { cleanCodeAnimations } from "../../books/clean-code/examples/clean-code-animations.js";
 import { highlightJson } from "../utils/code-highlighter.js";
 import { getLang, t } from "../../books/design-patterns/explanations/i18n.js";
+import { cleanCodeAnimStepsI18n } from "../../books/design-patterns/examples/flowchart-i18n.js";
 import { icons } from "./icons.js";
 
 const paletteCycle = ["blue", "emerald", "cyan", "violet", "amber"];
 
-function normalizeAnimSpec(raw) {
+function normalizeAnimSpec(raw, patternId = "") {
   if (!raw) return null;
   if (raw.steps?.[0]?.packet) return raw; // Already in GoF format
+
+  const pid = patternId || raw.id || "";
+  const ccI18n = cleanCodeAnimStepsI18n[pid] || cleanCodeAnimStepsI18n[raw.id];
+
   return {
     code: raw.code,
     layerIndex: raw.layerIndex || 1,
@@ -33,11 +38,35 @@ function normalizeAnimSpec(raw) {
       (s.activeNodes || []).forEach((nid, i) => {
         nodeStates[nid] = i === 0 ? "CALLING" : "ACTIVE";
       });
+
+      const enStep = ccI18n?.en?.steps?.[idx];
+      const esStep = ccI18n?.es?.steps?.[idx];
+      const itStep = ccI18n?.it?.steps?.[idx];
+      const frStep = ccI18n?.fr?.steps?.[idx];
+
       return {
         id: idx + 1,
-        tag: { pt: `ETAPA 0${idx + 1} • FLUXO CLEAN CODE`, en: `STEP 0${idx + 1} • CLEAN CODE FLOW`, es: `PASO 0${idx + 1}` },
-        title: { pt: s.title, en: s.title, es: s.title },
-        desc: { pt: s.narration, en: s.narration, es: s.narration },
+        tag: {
+          pt: `ETAPA 0${idx + 1} • FLUXO CLEAN CODE`,
+          en: `STEP 0${idx + 1} • CLEAN CODE FLOW`,
+          es: `PASO 0${idx + 1} • FLUJO CÓDIGO LIMPIO`,
+          it: `PASSAGGIO 0${idx + 1} • FLUSSO CODICE PULITO`,
+          fr: `ÉTAPE 0${idx + 1} • FLUX DE CODE PROPRE`
+        },
+        title: {
+          pt: s.title,
+          en: enStep?.title || s.title,
+          es: esStep?.title || s.title,
+          it: itStep?.title || s.title,
+          fr: frStep?.title || s.title
+        },
+        desc: {
+          pt: s.narration,
+          en: enStep?.narration || s.narration,
+          es: esStep?.narration || s.narration,
+          it: itStep?.narration || s.narration,
+          fr: frStep?.narration || s.narration
+        },
         packet: {
           from: s.from,
           to: s.to,
@@ -137,7 +166,7 @@ export function stopActiveVisualizerTimer() {
 export function renderPatternVisualizer(container, pattern) {
   stopActiveVisualizerTimer();
 
-  const anim = normalizeAnimSpec(patternAnimations[pattern.id] || cleanCodeAnimations[pattern.id]);
+  const anim = normalizeAnimSpec(patternAnimations[pattern.id] || cleanCodeAnimations[pattern.id], pattern.id);
   if (!anim) {
     container.innerHTML = "";
     return;

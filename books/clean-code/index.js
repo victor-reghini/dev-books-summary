@@ -37,6 +37,7 @@ export const cleanCodeBook = {
   author: "Robert C. Martin (Uncle Bob)",
   year: 2008,
   editionPt: cleanCodeOverview.editionPt,
+  affiliateUrl: "https://link.amazon/B0b1hcoN2",
   status: "ready",
   badge: "17 Capítulos + 66 Heurísticas",
   accentColor: "emerald",

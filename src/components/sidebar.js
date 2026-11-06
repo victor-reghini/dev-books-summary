@@ -1,6 +1,6 @@
 import { patternsData } from "../../books/design-patterns/explanations/patterns-data.js";
 import { patternAnimations } from "../../books/design-patterns/examples/pattern-animations.js";
-import { t } from "../../books/design-patterns/explanations/i18n.js";
+import { getLang, t, patternI18n } from "../../books/design-patterns/explanations/i18n.js";
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
 import { icons } from "./icons.js";
 
@@ -90,12 +90,6 @@ function renderBookshelfSidebar(sidebarEl, currentHash) {
         </button>
         <div class="sidebar-items-group is-open" id="group-estante">
           <div class="sidebar-items-inner">
-            <a href="#/estante" class="sidebar-item ${currentHash === "#/" || currentHash === "#/estante" || currentHash === "" ? "active" : ""}">
-              <span class="sidebar-item-left">
-                <span class="sidebar-code-pill">00</span>
-                <span>Estante Principal (Capas)</span>
-              </span>
-            </a>
             <a href="#/design-patterns" class="sidebar-item">
               <span class="sidebar-item-left">
                 <span class="sidebar-code-pill cat-estrutural">DP</span>
@@ -117,49 +111,17 @@ function renderBookshelfSidebar(sidebarEl, currentHash) {
           </div>
         </div>
       </div>
-
-      <div class="sidebar-group">
-        <button type="button" class="sidebar-group-title" data-group="atalhos" aria-expanded="true">
-          <span>ACESSO RÁPIDO À PRÁTICA</span>
-          <span class="chevron">${icons.chevronRight}</span>
-        </button>
-        <div class="sidebar-items-group is-open" id="group-atalhos">
-          <div class="sidebar-items-inner">
-            <a href="#/laboratorios" class="sidebar-item">
-              <span class="sidebar-item-left">
-                <span class="sidebar-code-pill">LB</span>
-                <span>Playgrounds GoF</span>
-              </span>
-              <span class="item-badge">9 LABS</span>
-            </a>
-            <a href="#/clean-code/laboratorios" class="sidebar-item">
-              <span class="sidebar-item-left">
-                <span class="sidebar-code-pill">CL</span>
-                <span>Labs & Gráficos Clean Code</span>
-              </span>
-              <span class="item-badge">6 LABS</span>
-            </a>
-            <a href="#/quizzes" class="sidebar-item">
-              <span class="sidebar-item-left">
-                <span class="sidebar-code-pill">QZ</span>
-                <span>Quizzes & Prática GoF</span>
-              </span>
-              <span class="item-badge">QUIZ</span>
-            </a>
-            <a href="#/clean-code/quizzes" class="sidebar-item">
-              <span class="sidebar-item-left">
-                <span class="sidebar-code-pill">CQ</span>
-                <span>Quizzes & Prática Clean Code</span>
-              </span>
-              <span class="item-badge">QUIZ</span>
-            </a>
-          </div>
-        </div>
-      </div>
     </nav>
-
-    ${renderProfileFooter()}
   `;
+
+  const groupTitle = sidebarEl.querySelector(".sidebar-group-title");
+  const groupEl = sidebarEl.querySelector("#group-estante");
+  if (groupTitle && groupEl) {
+    groupTitle.addEventListener("click", () => {
+      const isOpen = groupEl.classList.toggle("is-open");
+      groupTitle.setAttribute("aria-expanded", String(isOpen));
+    });
+  }
 }
 
 function renderGofSidebar(sidebarEl, currentHash) {
@@ -333,8 +295,6 @@ function renderGofSidebar(sidebarEl, currentHash) {
         </div>
       </div>
     </nav>
-
-    ${renderProfileFooter()}
   `;
 
   attachFilterAndAccordionHandlers(sidebarEl, activeGroup);
@@ -407,7 +367,7 @@ function renderCleanCodeSidebar(sidebarEl, currentHash) {
       <!-- Parte 1: Fundamentos (5) -->
       <div class="sidebar-group">
         <button type="button" class="sidebar-group-title" data-group="criacional" aria-expanded="${isGroupOpen("criacional")}">
-          <span>1. FUNDAMENTOS (5)</span>
+          <span>${t("cleanCodePart1") || "1. FUNDAMENTOS (5)"}</span>
           <span class="chevron">${icons.chevronRight}</span>
         </button>
         <div class="sidebar-items-group ${isGroupOpen("criacional") ? "is-open" : ""}" id="group-criacional">
@@ -420,7 +380,7 @@ function renderCleanCodeSidebar(sidebarEl, currentHash) {
       <!-- Parte 2: Design & Qualidade (4) -->
       <div class="sidebar-group">
         <button type="button" class="sidebar-group-title" data-group="estrutural" aria-expanded="${isGroupOpen("estrutural")}">
-          <span>2. DESIGN & QUALIDADE (4)</span>
+          <span>${t("cleanCodePart2") || "2. DESIGN & TESTES (4)"}</span>
           <span class="chevron">${icons.chevronRight}</span>
         </button>
         <div class="sidebar-items-group ${isGroupOpen("estrutural") ? "is-open" : ""}" id="group-estrutural">
@@ -433,7 +393,7 @@ function renderCleanCodeSidebar(sidebarEl, currentHash) {
       <!-- Parte 3: Arquitetura & Escala (4) -->
       <div class="sidebar-group">
         <button type="button" class="sidebar-group-title" data-group="comportamental" aria-expanded="${isGroupOpen("comportamental")}">
-          <span>3. ARQUITETURA & ESCALA (4)</span>
+          <span>${t("cleanCodePart3") || "3. ARQUITETURA & ESCALA (4)"}</span>
           <span class="chevron">${icons.chevronRight}</span>
         </button>
         <div class="sidebar-items-group ${isGroupOpen("comportamental") ? "is-open" : ""}" id="group-comportamental">
@@ -446,7 +406,7 @@ function renderCleanCodeSidebar(sidebarEl, currentHash) {
       <!-- Parte 4: Estudos de Caso & Heurísticas (4) -->
       <div class="sidebar-group">
         <button type="button" class="sidebar-group-title" data-group="estudos-de-caso" aria-expanded="${isGroupOpen("estudos-de-caso")}">
-          <span>4. CASOS & HEURÍSTICAS (4)</span>
+          <span>${t("cleanCodePart4") || "4. CASOS & HEURÍSTICAS (4)"}</span>
           <span class="chevron">${icons.chevronRight}</span>
         </button>
         <div class="sidebar-items-group ${isGroupOpen("estudos-de-caso") ? "is-open" : ""}" id="group-estudos-de-caso">
@@ -459,7 +419,7 @@ function renderCleanCodeSidebar(sidebarEl, currentHash) {
       <!-- Fundamentos & Visão Geral do Livro -->
       <div class="sidebar-group">
         <button type="button" class="sidebar-group-title" data-group="geral" aria-expanded="${isGroupOpen("geral")}">
-          <span>VISÃO GERAL & ARQUITETURA</span>
+          <span>${t("cleanCodeGeneral") || "VISÃO GERAL & ARQUITETURA"}</span>
           <span class="chevron">${icons.chevronRight}</span>
         </button>
         <div class="sidebar-items-group ${isGroupOpen("geral") ? "is-open" : ""}" id="group-geral">
@@ -536,8 +496,6 @@ function renderCleanCodeSidebar(sidebarEl, currentHash) {
         </div>
       </div>
     </nav>
-
-    ${renderProfileFooter()}
   `;
 
   attachFilterAndAccordionHandlers(sidebarEl, activeGroup);
@@ -672,38 +630,20 @@ function renderPatternItem(p, currentHash, studied) {
 function renderCleanCodeItem(ch, currentHash, studied) {
   const isStudied = studied.includes(ch.id);
   const isActive = currentHash === `#/clean-code/capitulo/${ch.id}`;
+  const lang = getLang();
+  const tr = patternI18n[ch.id]?.[lang];
+  const displayName = tr?.name || tr?.localName || ch.name;
 
   return `
     <a href="#/clean-code/capitulo/${ch.id}" class="sidebar-item ${isActive ? "active" : ""}" data-pattern-id="${ch.id}">
       <span class="sidebar-item-left">
         <span class="sidebar-code-pill cat-${ch.category}">${ch.code}</span>
-        <span class="sidebar-item-name">${ch.name}</span>
+        <span class="sidebar-item-name">${displayName}</span>
       </span>
       <span class="sidebar-item-right">
         ${isStudied ? `<span class="read-check" title="${t("markedStudied")}">${icons.check}</span>` : `<span class="scope-mini-tag">P.${ch.gofPage}</span>`}
       </span>
     </a>
-  `;
-}
-
-function renderProfileFooter() {
-  return `
-    <div class="sidebar-profile-footer">
-      <a
-        href="https://github.com/victor-reghini"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="sidebar-profile-link"
-        aria-label="Victor Reghini GitHub Profile"
-      >
-        <span class="sidebar-profile-avatar">${icons.github}</span>
-        <span class="sidebar-profile-meta">
-          <strong>Victor Reghini</strong>
-          <small>github.com/victor-reghini</small>
-        </span>
-        <span class="sidebar-profile-ext">${icons.externalLink}</span>
-      </a>
-    </div>
   `;
 }
 

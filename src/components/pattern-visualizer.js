@@ -1,5 +1,6 @@
 import { patternAnimations, buildObjectInspectorState } from "../../books/design-patterns/examples/pattern-animations.js";
 import { cleanCodeAnimations } from "../../books/clean-code/examples/clean-code-animations.js";
+import { grokkingAlgorithmsAnimations } from "../../books/grokking-algorithms/examples/grokking-algorithms-animations.js";
 import { highlightJson } from "../utils/code-highlighter.js";
 import { getLang, t } from "../../books/design-patterns/explanations/i18n.js";
 import { cleanCodeAnimStepsI18n } from "../../books/design-patterns/examples/flowchart-i18n.js";
@@ -12,6 +13,7 @@ function normalizeAnimSpec(raw, patternId = "") {
   if (raw.steps?.[0]?.packet) return raw; // Already in GoF format
 
   const pid = patternId || raw.id || "";
+  const isGrokking = String(pid).startsWith("ga-cap-");
   const ccI18n = cleanCodeAnimStepsI18n[pid] || cleanCodeAnimStepsI18n[raw.id];
 
   return {
@@ -22,7 +24,7 @@ function normalizeAnimSpec(raw, patternId = "") {
       id: n.id,
       label: n.label,
       stereotype: n.stereotype || n.stereo || "«participant»",
-      addr: n.addr || `0xCC${idx}0`,
+      addr: n.addr || (isGrokking ? `0xGA${idx}0` : `0xCC${idx}0`),
       x: n.x,
       y: n.y,
       color: n.color || paletteCycle[idx % paletteCycle.length]
@@ -46,13 +48,21 @@ function normalizeAnimSpec(raw, patternId = "") {
 
       return {
         id: idx + 1,
-        tag: {
-          pt: `ETAPA 0${idx + 1} • FLUXO CLEAN CODE`,
-          en: `STEP 0${idx + 1} • CLEAN CODE FLOW`,
-          es: `PASO 0${idx + 1} • FLUJO CÓDIGO LIMPIO`,
-          it: `PASSAGGIO 0${idx + 1} • FLUSSO CODICE PULITO`,
-          fr: `ÉTAPE 0${idx + 1} • FLUX DE CODE PROPRE`
-        },
+        tag: isGrokking
+          ? {
+              pt: `ETAPA 0${idx + 1} • FLUXO ALGORÍTMICO`,
+              en: `STEP 0${idx + 1} • ALGORITHMIC FLOW`,
+              es: `PASO 0${idx + 1} • FLUJO ALGORÍTMICO`,
+              it: `PASSAGGIO 0${idx + 1} • FLUSSO ALGORITMICO`,
+              fr: `ÉTAPE 0${idx + 1} • FLUX ALGORITHMIQUE`
+            }
+          : {
+              pt: `ETAPA 0${idx + 1} • FLUXO CLEAN CODE`,
+              en: `STEP 0${idx + 1} • CLEAN CODE FLOW`,
+              es: `PASO 0${idx + 1} • FLUJO CÓDIGO LIMPIO`,
+              it: `PASSAGGIO 0${idx + 1} • FLUSSO CODICE PULITO`,
+              fr: `ÉTAPE 0${idx + 1} • FLUX DE CODE PROPRE`
+            },
         title: {
           pt: s.title,
           en: enStep?.title || s.title,
@@ -71,8 +81,8 @@ function normalizeAnimSpec(raw, patternId = "") {
           from: s.from,
           to: s.to,
           call: s.call,
-          returnVal: "OK • CLEAN",
-          type: "REFACTOR"
+          returnVal: isGrokking ? "OK • STEP" : "OK • CLEAN",
+          type: isGrokking ? "ALGO" : "REFACTOR"
         },
         activeNodes: s.activeNodes || [s.from, s.to],
         nodeStates,
@@ -115,7 +125,13 @@ function calculateSafePillPosition(fromNode, toNode, nodes, call) {
   const pillW = Math.max(120, Math.min(220, callStr.length * 7.2 + 24));
   const pillH = 28;
 
-  const rawMidX = isSelfCall ? fromNode.x : (fromNode.x + toNode.x) / 2;
+  if (isSelfCall) {
+    const midX = Math.max(pillW / 2 + 10, Math.min(880 - pillW / 2 - 10, fromNode.x));
+    const midY = Math.max(22, fromNode.y - 78);
+    return { midX, midY, pillW, pillH, minY: fromNode.y, maxY: fromNode.y };
+  }
+
+  const rawMidX = (fromNode.x + toNode.x) / 2;
   const midX = Math.max(pillW / 2 + 10, Math.min(880 - pillW / 2 - 10, rawMidX));
 
   function hasCollision(x, y) {
@@ -166,7 +182,12 @@ export function stopActiveVisualizerTimer() {
 export function renderPatternVisualizer(container, pattern) {
   stopActiveVisualizerTimer();
 
-  const anim = normalizeAnimSpec(patternAnimations[pattern.id] || cleanCodeAnimations[pattern.id], pattern.id);
+  const anim = normalizeAnimSpec(
+    patternAnimations[pattern.id] ||
+      cleanCodeAnimations[pattern.id] ||
+      grokkingAlgorithmsAnimations[pattern.id],
+    pattern.id
+  );
   if (!anim) {
     container.innerHTML = "";
     return;
@@ -293,6 +314,20 @@ export function renderPatternVisualizer(container, pattern) {
                 (step.packet.from === link.from && step.packet.to === link.to) ||
                 (step.packet.from === link.to && step.packet.to === link.from);
 
+              const isSelf = link.from === link.to;
+              if (isSelf) {
+                return `
+                  <g class="pe-edge-group ${isCurrentEdge ? "is-active" : ""}">
+                    <path
+                      d="M ${n1.x - 30} ${n1.y - 29} C ${n1.x - 40} ${n1.y - 65}, ${n1.x + 40} ${n1.y - 65}, ${n1.x + 30} ${n1.y - 29}"
+                      class="pe-edge-line ${link.dashed ? "dashed" : ""} ${isCurrentEdge ? "active" : ""}"
+                      fill="none"
+                      marker-end="url(#${isCurrentEdge ? "pe-arrow-active" : "pe-arrow-muted"})"
+                    />
+                  </g>
+                `;
+              }
+
               const p1 = getBoxBorderPoint(n1, n2, 146, 58, 0);
               const p2 = getBoxBorderPoint(n2, n1, 146, 58, 6);
 
@@ -328,7 +363,18 @@ export function renderPatternVisualizer(container, pattern) {
                 </circle>
               `;
             })() : `
-              <circle cx="${fromNode.x}" cy="${fromNode.y - 38}" r="16" class="pe-self-loop-path" fill="none" />
+              <path
+                d="M ${fromNode.x - 30} ${fromNode.y - 29} C ${fromNode.x - 40} ${fromNode.y - 65}, ${fromNode.x + 40} ${fromNode.y - 65}, ${fromNode.x + 30} ${fromNode.y - 29}"
+                class="pe-self-loop-path"
+                fill="none"
+              />
+              <circle r="6" class="pe-packet-dot">
+                <animateMotion
+                  dur="${Math.max(0.9, speedMs / 1800)}s"
+                  repeatCount="indefinite"
+                  path="M ${fromNode.x - 30} ${fromNode.y - 29} C ${fromNode.x - 40} ${fromNode.y - 65}, ${fromNode.x + 40} ${fromNode.y - 65}, ${fromNode.x + 30} ${fromNode.y - 29}"
+                />
+              </circle>
             `}
 
             <!-- Participant Nodes -->
@@ -367,6 +413,18 @@ export function renderPatternVisualizer(container, pattern) {
                 const isCurrentEdge =
                   (step.packet.from === link.from && step.packet.to === link.to) ||
                   (step.packet.from === link.to && step.packet.to === link.from);
+
+                const isSelf = link.from === link.to;
+                if (isSelf) {
+                  return `
+                    <text
+                      x="${n1.x}"
+                      y="${n1.y - 68}"
+                      text-anchor="middle"
+                      class="pe-edge-label ${isCurrentEdge ? "active" : ""}"
+                    >${link.label}</text>
+                  `;
+                }
 
                 const p1 = getBoxBorderPoint(n1, n2, 146, 58, 0);
                 const p2 = getBoxBorderPoint(n2, n1, 146, 58, 6);

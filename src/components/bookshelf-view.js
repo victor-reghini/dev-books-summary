@@ -1,5 +1,6 @@
 import { patternsData } from "../../books/design-patterns/explanations/patterns-data.js";
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
+import { grokkingChaptersData } from "../../books/grokking-algorithms/explanations/chapters-data.js";
 import { getStudiedPatterns } from "./sidebar.js";
 import { t } from "../../books/design-patterns/explanations/i18n.js";
 import { icons } from "./icons.js";
@@ -13,14 +14,18 @@ export function renderBookshelfPage(container) {
   const ccTotal = cleanCodeChaptersData.length;
   const ccPct = Math.round((ccStudied / ccTotal) * 100);
 
+  const gaStudied = getStudiedPatterns("grokking-algorithms").length;
+  const gaTotal = grokkingChaptersData.length;
+  const gaPct = Math.round((gaStudied / gaTotal) * 100);
+
   container.innerHTML = `
     <section class="pe-home-hero">
       <div class="pe-hero-top-row">
         <span class="pe-hero-kicker">${t("mainBookshelfTag")}</span>
         <div class="pe-hero-stats">
-          <span class="pe-stat-chip">2 Livros Clássicos Completos</span>
-          <span class="pe-stat-chip">40 Módulos Animados (200 Etapas)</span>
-          <span class="pe-stat-chip">15 Playgrounds & Gráficos</span>
+          <span class="pe-stat-chip">3 Livros Clássicos Completos</span>
+          <span class="pe-stat-chip">51 Módulos Animados (255 Etapas)</span>
+          <span class="pe-stat-chip">23 Playgrounds & Gráficos</span>
           <span class="pe-stat-chip">Quizzes, Cenários & Mão na Massa</span>
         </div>
       </div>
@@ -227,6 +232,113 @@ export function renderBookshelfPage(container) {
               ${icons.puzzle}
             </a>
             <a href="https://link.amazon/B0b1hcoN2" target="_blank" rel="noopener noreferrer" class="pe-cta-btn secondary bookshelf-icon-btn amazon-buy-btn" title="${t("buyBookTooltip") || "Comprar livro na Amazon"}" aria-label="${t("buyBook") || "Comprar Livro (Amazon)"}">
+              ${icons.cart}
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- LIVRO 3: ENTENDENDO ALGORITMOS (GROKKING ALGORITHMS) -->
+      <article class="bookshelf-item-card" data-book-target="#/grokking-algorithms">
+        <a href="#/grokking-algorithms" class="book-cover-link" aria-label="Abrir livro Entendendo Algoritmos (Grokking Algorithms)">
+          <div class="book-3d-frame book-grokking-theme">
+            <div class="book-spine"></div>
+            <div class="book-cover-face">
+              <div class="gof-cover-header">
+                <span class="ga-publisher-tag">MANNING • NOVATEC</span>
+                <span class="gof-authors-top">Aditya Y. Bhargava</span>
+              </div>
+
+              <div class="ga-cover-art">
+                <svg viewBox="0 0 260 155" class="book-cover-svg" role="img" aria-label="Arte da capa de Entendendo Algoritmos">
+                  <defs>
+                    <linearGradient id="gaArtBg" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#292524"/>
+                      <stop offset="100%" stop-color="#0f172a"/>
+                    </linearGradient>
+                  </defs>
+                  <rect width="260" height="155" rx="4" fill="url(#gaArtBg)" stroke="#d97706" stroke-width="1"/>
+                  <!-- Ilustracao de Grafo & Pesquisa Binaria estilo Aditya Bhargava -->
+                  <g stroke="#f59e0b" stroke-width="1.4" fill="none" opacity="0.9">
+                    <circle cx="55" cy="50" r="14" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                    <circle cx="130" cy="35" r="14" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                    <circle cx="205" cy="50" r="14" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                    <circle cx="90" cy="105" r="14" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                    <circle cx="170" cy="105" r="14" fill="#1e293b" stroke="#ec4899" stroke-width="2"/>
+                    <line x1="68" y1="46" x2="117" y2="38" stroke="#cbd5e1" stroke-width="1.8"/>
+                    <line x1="143" y1="38" x2="192" y2="46" stroke="#cbd5e1" stroke-width="1.8"/>
+                    <line x1="63" y1="62" x2="82" y2="93" stroke="#cbd5e1" stroke-width="1.8"/>
+                    <line x1="197" y1="62" x2="178" y2="93" stroke="#cbd5e1" stroke-width="1.8"/>
+                    <line x1="104" y1="105" x2="156" y2="105" stroke="#cbd5e1" stroke-width="1.8"/>
+                    <text x="92" y="38" fill="#fcd34d" font-size="8" font-weight="bold" font-family="JetBrains Mono, monospace">6</text>
+                    <text x="168" y="38" fill="#fcd34d" font-size="8" font-weight="bold" font-family="JetBrains Mono, monospace">2</text>
+                    <text x="65" y="82" fill="#fcd34d" font-size="8" font-weight="bold" font-family="JetBrains Mono, monospace">1</text>
+                    <text x="194" y="82" fill="#fcd34d" font-size="8" font-weight="bold" font-family="JetBrains Mono, monospace">5</text>
+                    <text x="130" y="100" fill="#fcd34d" font-size="8" font-weight="bold" font-family="JetBrains Mono, monospace">3</text>
+                  </g>
+                  <text x="130" y="143" text-anchor="middle" fill="#fcd34d" font-size="9.5" font-family="JetBrains Mono, monospace">11 CHAPTERS • ILLUSTRATED ALGORITHMS</text>
+                </svg>
+              </div>
+
+              <div class="ga-cover-title-band">
+                <span class="cover-main-title">Entendendo Algoritmos</span>
+                <span class="cover-sub-title">Um Guia Ilustrado para Programadores e Outros Curiosos</span>
+                <span class="cover-orig-title">Grokking Algorithms: An Illustrated Guide</span>
+              </div>
+
+              <div class="gof-cover-footer">
+                <span>Tradução e Edição Novatec</span>
+                <span class="cover-year-pill">Edição Ilustrada • 2016</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <div class="bookshelf-item-details">
+          <div class="bookshelf-meta-top">
+            <span class="badge badge-behavioral">11 CAPÍTULOS ILUSTRADOS • GUIA COMPLETO</span>
+            <span class="badge badge-scope">PT · EN · ES · IT · FR</span>
+          </div>
+
+          <h2 class="bookshelf-book-title">
+            <a href="#/grokking-algorithms">Entendendo Algoritmos (Grokking Algorithms • Aditya Bhargava)</a>
+          </h2>
+          <p class="bookshelf-book-authors">
+            <strong>Autor:</strong> Aditya Y. Bhargava (Engenheiro de Software & Ilustrador)
+          </p>
+          <p class="bookshelf-book-desc">
+            O guia visual e ilustrado definitivo de algoritmos e estruturas de dados: da pesquisa binaria O(log n) e ordenacao por selecao ao Quicksort D&C, tabelas hash com controle de fator de carga, grafos com BFS e Dijkstra, algoritmos gulosos de aproximacao, programacao dinamica (mochila 0/1 e LCS), aprendizado de maquina com KNN e estruturas probabilisticas (Filtros de Bloom e HyperLogLog).
+          </p>
+
+          <div class="bookshelf-feature-chips">
+            <span class="pe-stat-chip">11 Capítulos</span>
+            <span class="pe-stat-chip">Notação Big O</span>
+            <span class="pe-stat-chip">55 Etapas Animadas</span>
+            <span class="pe-stat-chip">8 Labs & Simuladores</span>
+            <span class="pe-stat-chip">Exercícios Oficiais do Livro</span>
+          </div>
+
+          <div class="bookshelf-progress-box">
+            <div class="study-tracker-row">
+              <span class="study-tracker-label">SEU PROGRESSO NESTE LIVRO</span>
+              <strong>${gaStudied}/${gaTotal} capítulos (${gaPct}%)</strong>
+            </div>
+            <div class="study-progress-bar-bg">
+              <div class="study-progress-bar-fill" style="width: ${gaPct}%;"></div>
+            </div>
+          </div>
+
+          <div class="bookshelf-cta-row">
+            <a href="#/grokking-algorithms" class="pe-cta-btn primary bookshelf-icon-btn" title="Abrir Livro: Entendendo Algoritmos" aria-label="Abrir Livro: Entendendo Algoritmos">
+              ${icons.bookOpen}
+            </a>
+            <a href="#/grokking-algorithms/laboratorios" class="pe-cta-btn secondary bookshelf-icon-btn" title="8 Labs & Simuladores" aria-label="8 Labs & Simuladores">
+              ${icons.flask}
+            </a>
+            <a href="#/grokking-algorithms/quizzes" class="pe-cta-btn secondary bookshelf-icon-btn" title="Quizzes e Exercícios do Livro" aria-label="Quizzes e Exercícios do Livro">
+              ${icons.puzzle}
+            </a>
+            <a href="https://link.amazon/B04UCSIMC" target="_blank" rel="noopener noreferrer" class="pe-cta-btn secondary bookshelf-icon-btn amazon-buy-btn" title="${t("buyBookTooltip") || "Comprar livro na Amazon"}" aria-label="${t("buyBook") || "Comprar Livro (Amazon)"}">
               ${icons.cart}
             </a>
           </div>

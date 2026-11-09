@@ -1423,8 +1423,28 @@ h1.page-title {
 }
 
 .info-card h4 {
-  font-size: 1.08rem;
+  font-size: 1.15rem;
+  margin-bottom: 0.65rem;
+}
+
+.info-card h5 {
+  font-size: 1.05rem;
+  margin-top: 0.85rem;
   margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.info-card ul {
+  padding-left: 1.25rem;
+  font-size: 0.92rem;
+  margin: 0.6rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.info-card li {
+  line-height: 1.6;
 }
 
 /* Tables */

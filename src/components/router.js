@@ -1,12 +1,14 @@
 import { patternsData } from "../../books/design-patterns/explanations/patterns-data.js";
 import { patternAnimations } from "../../books/design-patterns/examples/pattern-animations.js";
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
+import { grokkingChaptersData } from "../../books/grokking-algorithms/explanations/chapters-data.js";
 import { t } from "../../books/design-patterns/explanations/i18n.js";
 import { stopActiveVisualizerTimer } from "./pattern-visualizer.js";
 import { updatePageSEO } from "../utils/seo.js";
 import { renderBookshelfPage } from "./bookshelf-view.js";
 import { handleGofRoute } from "./gof-views.js";
 import { handleCleanCodeRoute } from "./clean-code-views.js";
+import { handleGrokkingRoute } from "./grokking-views.js";
 
 export function updateHeaderTelemetry(hash) {
   const badgeEl = document.getElementById("header-active-module");
@@ -29,6 +31,19 @@ export function updateHeaderTelemetry(hash) {
       }
     }
     badgeEl.innerHTML = `<span class="header-status-dot"></span> <span class="header-now-label">${t("activeBook") || "LIVRO ATIVO:"}</span> <strong>CÓDIGO LIMPO</strong>`;
+    return;
+  }
+
+  if (hash.startsWith("#/grokking-algorithms")) {
+    if (hash.startsWith("#/grokking-algorithms/capitulo/")) {
+      const id = hash.replace("#/grokking-algorithms/capitulo/", "").trim();
+      const ch = grokkingChaptersData.find((item) => item.id === id);
+      if (ch) {
+        badgeEl.innerHTML = `<span class="header-status-dot"></span> <span class="header-now-label">${t("activeStudying") || "ESTUDANDO AGORA:"}</span> <strong>${ch.code} · ${ch.name.toUpperCase()}</strong>`;
+        return;
+      }
+    }
+    badgeEl.innerHTML = `<span class="header-status-dot"></span> <span class="header-now-label">${t("activeBook") || "LIVRO ATIVO:"}</span> <strong>ENTENDENDO ALGORITMOS</strong>`;
     return;
   }
 
@@ -61,6 +76,11 @@ export function handleRoute(contentArea) {
 
   if (hash.startsWith("#/clean-code")) {
     handleCleanCodeRoute(contentArea, hash);
+    return;
+  }
+
+  if (hash.startsWith("#/grokking-algorithms")) {
+    handleGrokkingRoute(contentArea, hash);
     return;
   }
 

@@ -174,6 +174,38 @@
   border-left-color: rgba(255, 255, 255, 0.25);
 }
 
+/* Tema da Capa 3: Entendendo Algoritmos (Grokking Algorithms) */
+.book-grokking-theme {
+  background: linear-gradient(165deg, #1c1917 0%, #1e293b 60%, #0f172a 100%);
+  color: #f8fafc;
+}
+
+.ga-publisher-tag {
+  display: inline-block;
+  background-color: #d97706;
+  color: #fffbeb;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 3px;
+}
+
+.ga-cover-art {
+  margin: 0.55rem 0;
+}
+
+.book-grokking-theme .ga-cover-title-band {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  border-left: 3px solid #f59e0b;
+}
+
 .cover-main-title {
   font-family: var(--font-display);
   font-size: 1.22rem;
@@ -331,13 +363,95 @@
   border-color: var(--border-strong);
 }
 
-/* Categoria 4 do Clean Code (Estudos de Caso & Heurísticas) */
+/* Categoria 4 do Clean Code (Estudos de Caso & Heurísticas) e Categorias de Entendendo Algoritmos */
 .sidebar-code-pill.cat-estudos-de-caso,
 .pe-card-code.cat-estudos-de-caso,
-.quiz-cat-badge.cat-estudos-de-caso {
+.quiz-cat-badge.cat-estudos-de-caso,
+.sidebar-code-pill.cat-advanced,
+.sidebar-code-pill.cat-avancados,
+.pe-card-code.cat-advanced,
+.pe-card-code.cat-avancados,
+.quiz-cat-badge.cat-advanced,
+.quiz-cat-badge.cat-avancados {
   background-color: rgba(212, 169, 98, 0.15);
   color: var(--accent-warning);
   border: 1px solid rgba(212, 169, 98, 0.35);
+}
+
+.cc-section-dot.cat-foundations,
+.cc-section-dot.cat-fundamentos {
+  background-color: var(--cat-creational);
+}
+
+.cc-section-dot.cat-divide-hash,
+.cc-section-dot.cat-dividir-conquistar,
+.cc-section-dot.cat-tabelas-hash {
+  background-color: var(--cat-structural);
+}
+
+.cc-section-dot.cat-graphs,
+.cc-section-dot.cat-grafos {
+  background-color: var(--cat-behavioral);
+}
+
+.cc-section-dot.cat-advanced,
+.cc-section-dot.cat-avancados {
+  background-color: var(--accent-warning);
+}
+
+.pe-card-code.cat-foundations,
+.pe-card-code.cat-fundamentos,
+.quiz-cat-badge.cat-foundations,
+.quiz-cat-badge.cat-fundamentos {
+  background-color: var(--cat-creational-bg);
+  color: var(--cat-creational);
+}
+
+.pe-card-code.cat-divide-hash,
+.pe-card-code.cat-dividir-conquistar,
+.pe-card-code.cat-tabelas-hash,
+.quiz-cat-badge.cat-divide-hash,
+.quiz-cat-badge.cat-dividir-conquistar,
+.quiz-cat-badge.cat-tabelas-hash {
+  background-color: var(--cat-structural-bg);
+  color: var(--cat-structural);
+}
+
+.pe-card-code.cat-graphs,
+.pe-card-code.cat-grafos,
+.quiz-cat-badge.cat-graphs,
+.quiz-cat-badge.cat-grafos {
+  background-color: var(--cat-behavioral-bg);
+  color: var(--cat-behavioral);
+}
+
+.pe-card-cat-tag.cat-estudos-de-caso,
+.pe-card-cat-tag.cat-advanced,
+.pe-card-cat-tag.cat-avancados {
+  color: var(--accent-warning);
+}
+
+.pe-card-cat-tag.cat-foundations,
+.pe-card-cat-tag.cat-fundamentos,
+.sidebar-code-pill.cat-foundations,
+.sidebar-code-pill.cat-fundamentos {
+  color: var(--cat-creational);
+}
+
+.pe-card-cat-tag.cat-divide-hash,
+.pe-card-cat-tag.cat-dividir-conquistar,
+.pe-card-cat-tag.cat-tabelas-hash,
+.sidebar-code-pill.cat-divide-hash,
+.sidebar-code-pill.cat-dividir-conquistar,
+.sidebar-code-pill.cat-tabelas-hash {
+  color: var(--cat-structural);
+}
+
+.pe-card-cat-tag.cat-graphs,
+.pe-card-cat-tag.cat-grafos,
+.sidebar-code-pill.cat-graphs,
+.sidebar-code-pill.cat-grafos {
+  color: var(--cat-behavioral);
 }
 
 @media (max-width: 860px) {

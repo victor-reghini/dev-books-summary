@@ -2,21 +2,27 @@ import { patternsData } from "../../books/design-patterns/explanations/patterns-
 import { patternAnimations } from "../../books/design-patterns/examples/pattern-animations.js";
 import { getLang, t, patternI18n } from "../../books/design-patterns/explanations/i18n.js";
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
+import { grokkingChaptersData } from "../../books/grokking-algorithms/explanations/chapters-data.js";
 import { icons } from "./icons.js";
 
 const STUDIED_KEY_GOF = "gof_studied_patterns";
 const STUDIED_KEY_CC = "cleancode_studied_chapters";
+const STUDIED_KEY_GA = "grokking_studied_chapters";
 
 export function getActiveBookFromHash(hash = window.location.hash) {
   const h = hash || "#/";
   if (h === "#/" || h === "#/estante" || h === "#") return "estante";
   if (h.startsWith("#/clean-code")) return "clean-code";
+  if (h.startsWith("#/grokking-algorithms")) return "grokking-algorithms";
   return "design-patterns";
 }
 
 export function getStudiedPatterns(bookId = null) {
-  const active = bookId || (getActiveBookFromHash() === "clean-code" ? "clean-code" : "design-patterns");
-  const key = active === "clean-code" ? STUDIED_KEY_CC : STUDIED_KEY_GOF;
+  const active = bookId || getActiveBookFromHash();
+  let key = STUDIED_KEY_GOF;
+  if (active === "clean-code") key = STUDIED_KEY_CC;
+  else if (active === "grokking-algorithms") key = STUDIED_KEY_GA;
+
   try {
     return JSON.parse(localStorage.getItem(key)) || [];
   } catch {
@@ -25,9 +31,10 @@ export function getStudiedPatterns(bookId = null) {
 }
 
 export function togglePatternStudied(itemId) {
-  const isCC = String(itemId).startsWith("cap-");
-  const bookId = isCC ? "clean-code" : "design-patterns";
-  const key = isCC ? STUDIED_KEY_CC : STUDIED_KEY_GOF;
+  const isGA = String(itemId).startsWith("ga-cap-");
+  const isCC = !isGA && String(itemId).startsWith("cap-");
+  const bookId = isGA ? "grokking-algorithms" : isCC ? "clean-code" : "design-patterns";
+  const key = isGA ? STUDIED_KEY_GA : isCC ? STUDIED_KEY_CC : STUDIED_KEY_GOF;
   const studied = getStudiedPatterns(bookId);
   const idx = studied.indexOf(itemId);
   if (idx === -1) {
@@ -61,14 +68,20 @@ export function renderSidebar(sidebarEl, currentHash = "") {
     return;
   }
 
+  if (activeBook === "grokking-algorithms") {
+    renderGrokkingSidebar(targetEl, hash);
+    return;
+  }
+
   renderGofSidebar(targetEl, hash);
 }
 
 function renderBookshelfSidebar(sidebarEl, currentHash) {
   const gofStudied = getStudiedPatterns("design-patterns").length;
   const ccStudied = getStudiedPatterns("clean-code").length;
-  const totalStudied = gofStudied + ccStudied;
-  const totalItems = patternsData.length + cleanCodeChaptersData.length;
+  const gaStudied = getStudiedPatterns("grokking-algorithms").length;
+  const totalStudied = gofStudied + ccStudied + gaStudied;
+  const totalItems = patternsData.length + cleanCodeChaptersData.length + grokkingChaptersData.length;
   const progressPercent = Math.round((totalStudied / totalItems) * 100);
 
   sidebarEl.innerHTML = `
@@ -85,7 +98,7 @@ function renderBookshelfSidebar(sidebarEl, currentHash) {
     <nav class="sidebar-nav" id="sidebar-nav-container" aria-label="Navegação da Estante Principal">
       <div class="sidebar-group">
         <button type="button" class="sidebar-group-title" data-group="estante" aria-expanded="true">
-          <span>ESTANTE DE LIVROS (2 OBRAS)</span>
+          <span>ESTANTE DE LIVROS (3 OBRAS)</span>
           <span class="chevron">${icons.chevronRight}</span>
         </button>
         <div class="sidebar-items-group is-open" id="group-estante">
@@ -106,6 +119,15 @@ function renderBookshelfSidebar(sidebarEl, currentHash) {
               </span>
               <span class="sidebar-item-right">
                 <span class="scope-mini-tag">${ccStudied}/17</span>
+              </span>
+            </a>
+            <a href="#/grokking-algorithms" class="sidebar-item">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill cat-comportamental">GA</span>
+                <span class="sidebar-item-name">Entendendo Algoritmos</span>
+              </span>
+              <span class="sidebar-item-right">
+                <span class="scope-mini-tag">${gaStudied}/11</span>
               </span>
             </a>
           </div>
@@ -501,6 +523,171 @@ function renderCleanCodeSidebar(sidebarEl, currentHash) {
   attachFilterAndAccordionHandlers(sidebarEl, activeGroup);
 }
 
+function renderGrokkingSidebar(sidebarEl, currentHash) {
+  const studied = getStudiedPatterns("grokking-algorithms");
+  const totalChapters = grokkingChaptersData.length;
+  const studiedCount = studied.length;
+  const progressPercent = Math.round((studiedCount / totalChapters) * 100);
+
+  const part1 = grokkingChaptersData.filter(c => c.category === "foundations");
+  const part2 = grokkingChaptersData.filter(c => c.category === "divide-hash");
+  const part3 = grokkingChaptersData.filter(c => c.category === "graphs");
+  const part4 = grokkingChaptersData.filter(c => c.category === "advanced");
+
+  let activeGroup = "foundations";
+  if (currentHash.startsWith("#/grokking-algorithms/capitulo/")) {
+    const cid = currentHash.replace("#/grokking-algorithms/capitulo/", "").trim();
+    const ch = grokkingChaptersData.find(item => item.id === cid);
+    if (ch) activeGroup = ch.category;
+  } else if (
+    ["#/grokking-algorithms", "#/grokking-algorithms/complexidade", "#/grokking-algorithms/referencias"].includes(currentHash)
+  ) {
+    activeGroup = "geral";
+  } else if (
+    ["#/grokking-algorithms/laboratorios", "#/grokking-algorithms/quizzes"].includes(currentHash)
+  ) {
+    activeGroup = "pratica";
+  }
+
+  const isGroupOpen = (grp) => grp === activeGroup;
+
+  sidebarEl.innerHTML = `
+    <div class="sidebar-search-box">
+      <div class="search-input-wrapper">
+        <span class="search-icon">${icons.search}</span>
+        <input
+          type="search"
+          id="sidebar-filter-input"
+          placeholder="Buscar algoritmo (ex: binaria, quicksort)..."
+          aria-label="Buscar algoritmo ou capitulo"
+        />
+      </div>
+    </div>
+
+    <div class="study-tracker">
+      <div class="study-tracker-row">
+        <span class="study-tracker-label">PROGRESSO EM ALGORITMOS</span>
+        <strong id="study-count-text">${studiedCount}/${totalChapters} ${t("completeLabel")} (${progressPercent}%)</strong>
+      </div>
+      <div class="study-progress-bar-bg" role="progressbar" aria-valuenow="${progressPercent}" aria-valuemin="0" aria-valuemax="100">
+        <div class="study-progress-bar-fill" id="study-progress-fill" style="width: ${progressPercent}%;"></div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav-container" aria-label="Navegacao de Entendendo Algoritmos">
+      <!-- Parte 1: Fundamentos (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="foundations" aria-expanded="${isGroupOpen("foundations")}">
+          <span>1. FUNDAMENTOS (CAP. 1-3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("foundations") ? "is-open" : ""}" id="group-foundations">
+          <div class="sidebar-items-inner">
+            ${part1.map(c => renderGrokkingItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 2: Dividir para Conquistar (2) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="divide-hash" aria-expanded="${isGroupOpen("divide-hash")}">
+          <span>2. DIVIDIR & HASH (CAP. 4-5)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("divide-hash") ? "is-open" : ""}" id="group-divide-hash">
+          <div class="sidebar-items-inner">
+            ${part2.map(c => renderGrokkingItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 3: Grafos (2) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="graphs" aria-expanded="${isGroupOpen("graphs")}">
+          <span>3. GRAFOS & BFS (CAP. 6-7)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("graphs") ? "is-open" : ""}" id="group-graphs">
+          <div class="sidebar-items-inner">
+            ${part3.map(c => renderGrokkingItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 4: Avançados (4) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="advanced" aria-expanded="${isGroupOpen("advanced")}">
+          <span>4. AVANÇADOS & DP (CAP. 8-11)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("advanced") ? "is-open" : ""}" id="group-advanced">
+          <div class="sidebar-items-inner">
+            ${part4.map(c => renderGrokkingItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Visão Geral & Escala Big O -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="geral" aria-expanded="${isGroupOpen("geral")}">
+          <span>VISÃO GERAL & BIG O</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("geral") ? "is-open" : ""}" id="group-geral">
+          <div class="sidebar-items-inner">
+            <a href="#/grokking-algorithms" class="sidebar-item ${currentHash === "#/grokking-algorithms" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">00</span>
+                <span>Catálogo (11 Capítulos)</span>
+              </span>
+            </a>
+            <a href="#/grokking-algorithms/complexidade" class="sidebar-item ${currentHash === "#/grokking-algorithms/complexidade" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">BO</span>
+                <span>Tabela de Complexidade Big O</span>
+              </span>
+            </a>
+            <a href="#/grokking-algorithms/referencias" class="sidebar-item ${currentHash === "#/grokking-algorithms/referencias" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">RF</span>
+                <span>Sobre Aditya Bhargava</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Laboratórios & Quizzes -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="pratica" aria-expanded="${isGroupOpen("pratica")}">
+          <span>LABORATÓRIOS & PRÁTICA</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("pratica") ? "is-open" : ""}" id="group-pratica">
+          <div class="sidebar-items-inner">
+            <a href="#/grokking-algorithms/laboratorios" class="sidebar-item ${currentHash === "#/grokking-algorithms/laboratorios" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">LB</span>
+                <span>8 Labs & Simuladores</span>
+              </span>
+              <span class="item-badge">8 LABS</span>
+            </a>
+            <a href="#/grokking-algorithms/quizzes" class="sidebar-item ${currentHash === "#/grokking-algorithms/quizzes" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">QZ</span>
+                <span>Quizzes & Exercícios Oficiais</span>
+              </span>
+              <span class="item-badge">QUIZ</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  `;
+
+  attachFilterAndAccordionHandlers(sidebarEl, activeGroup);
+}
+
 function attachFilterAndAccordionHandlers(sidebarEl, initialActiveGroup) {
   let activeGroup = initialActiveGroup;
   const filterInput = sidebarEl.querySelector("#sidebar-filter-input");
@@ -647,11 +834,33 @@ function renderCleanCodeItem(ch, currentHash, studied) {
   `;
 }
 
+function renderGrokkingItem(ch, currentHash, studied) {
+  const isStudied = studied.includes(ch.id);
+  const isActive = currentHash === `#/grokking-algorithms/capitulo/${ch.id}`;
+  const lang = getLang();
+  const tr = patternI18n[ch.id]?.[lang];
+  const displayName = tr?.name || tr?.localName || ch.name;
+
+  return `
+    <a href="#/grokking-algorithms/capitulo/${ch.id}" class="sidebar-item ${isActive ? "active" : ""}" data-pattern-id="${ch.id}">
+      <span class="sidebar-item-left">
+        <span class="sidebar-code-pill cat-${ch.category}">${ch.code}</span>
+        <span class="sidebar-item-name">${displayName}</span>
+      </span>
+      <span class="sidebar-item-right">
+        ${isStudied ? `<span class="read-check" title="${t("markedStudied")}">${icons.check}</span>` : `<span class="scope-mini-tag">P.${ch.gofPage}</span>`}
+      </span>
+    </a>
+  `;
+}
+
 export function updateSidebarProgress() {
   const activeBook = getActiveBookFromHash();
+  const isGA = activeBook === "grokking-algorithms";
   const isCC = activeBook === "clean-code";
-  const studied = getStudiedPatterns(isCC ? "clean-code" : "design-patterns");
-  const total = isCC ? cleanCodeChaptersData.length : patternsData.length;
+  const bookId = isGA ? "grokking-algorithms" : isCC ? "clean-code" : "design-patterns";
+  const studied = getStudiedPatterns(bookId);
+  const total = isGA ? grokkingChaptersData.length : isCC ? cleanCodeChaptersData.length : patternsData.length;
   const count = studied.length;
   const percent = Math.round((count / total) * 100);
 
@@ -667,6 +876,9 @@ export function updateSidebarProgress() {
     if (!rightSpan) return;
     if (studied.includes(pid)) {
       rightSpan.innerHTML = `<span class="read-check" title="${t("markedStudied")}">${icons.check}</span>`;
+    } else if (pid.startsWith("ga-cap-")) {
+      const ch = grokkingChaptersData.find(c => c.id === pid);
+      rightSpan.innerHTML = `<span class="scope-mini-tag">P.${ch ? ch.gofPage : ""}</span>`;
     } else if (pid.startsWith("cap-")) {
       const ch = cleanCodeChaptersData.find(c => c.id === pid);
       rightSpan.innerHTML = `<span class="scope-mini-tag">P.${ch ? ch.gofPage : ""}</span>`;

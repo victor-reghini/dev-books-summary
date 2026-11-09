@@ -1,7 +1,9 @@
 import { patternsData } from "../../books/design-patterns/explanations/patterns-data.js";
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
+import { grokkingChaptersData } from "../../books/grokking-algorithms/explanations/chapters-data.js";
 import { getLang, t, patternI18n } from "../../books/design-patterns/explanations/i18n.js";
 import { cleanCodeI18n } from "../../books/clean-code/explanations/clean-code-i18n.js";
+import { grokkingAlgorithmsI18n } from "../../books/grokking-algorithms/explanations/grokking-algorithms-i18n.js";
 
 function setMetaTag(nameOrProperty, value, isProperty = false) {
   if (!value) return;
@@ -27,8 +29,30 @@ export function updatePageSEO(hash = window.location.hash || "#/") {
   let pageDesc = "Plataforma interativa de engenharia de software: Código Limpo (Robert C. Martin / Uncle Bob) e Padrões de Projeto (Gang of Four - GoF). 40 capítulos e padrões com simuladores visuais SVG, labs e testes práticos.";
 
   if (hash === "#/" || hash === "#/estante" || hash === "") {
-    pageTitle = "DevBooks • Estante Interativa: Código Limpo & Padrões de Projeto GoF";
-    pageDesc = "Estante interativa com os clássicos da engenharia de software: Clean Code (Robert C. Martin) e Padrões de Projeto (GoF: Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides). Simuladores visuais e prática.";
+    pageTitle = "DevBooks • Estante Interativa: Código Limpo, Padrões de Projeto & Entendendo Algoritmos";
+    pageDesc = "Estante interativa com os clássicos da engenharia de software: Clean Code (Robert C. Martin), Padrões de Projeto (GoF) e Entendendo Algoritmos (Aditya Bhargava). Simuladores visuais e prática.";
+  } else if (hash.startsWith("#/grokking-algorithms/capitulo/")) {
+    const id = hash.replace("#/grokking-algorithms/capitulo/", "").trim();
+    const ch = grokkingChaptersData.find((c) => c.id === id);
+    if (ch) {
+      const tr = grokkingAlgorithmsI18n[ch.id]?.[lang] || patternI18n[ch.id]?.[lang];
+      const name = tr?.name || ch.name;
+      const intent = tr?.intent || ch.intent;
+      pageTitle = `Cap. ${ch.number} ${name} • Entendendo Algoritmos | DevBooks`;
+      pageDesc = `Capítulo ${ch.number} de Entendendo Algoritmos de Aditya Bhargava: ${name}. ${intent} Simulador visual passo a passo, código Multi-Linguagem e exercícios oficiais.`;
+    }
+  } else if (hash.startsWith("#/grokking-algorithms/laboratorios")) {
+    pageTitle = "Laboratórios & Simuladores • Entendendo Algoritmos | DevBooks";
+    pageDesc = "Playgrounds interativos de Entendendo Algoritmos: Pesquisa Binária, Selection Sort, Quicksort D&C, Hash Tables com Fator de Carga, BFS e Dijkstra.";
+  } else if (hash.startsWith("#/grokking-algorithms/complexidade")) {
+    pageTitle = "Escala de Complexidade Big O • Entendendo Algoritmos | DevBooks";
+    pageDesc = "Tabela comparativa da notação Big O: O(1), O(log n), O(n), O(n log n), O(n^2) e O(n!) com exemplos ilustrados e taxas de crescimento.";
+  } else if (hash.startsWith("#/grokking-algorithms/quizzes")) {
+    pageTitle = "Quizzes & Exercícios Oficiais • Entendendo Algoritmos | DevBooks";
+    pageDesc = "Teste seus conhecimentos com as questões e desafios oficiais de Entendendo Algoritmos (Aditya Y. Bhargava) com gabarito comentado.";
+  } else if (hash.startsWith("#/grokking-algorithms")) {
+    pageTitle = "Entendendo Algoritmos (Aditya Bhargava) • 11 Capítulos Ilustrados | DevBooks";
+    pageDesc = "Guia visual completo dos 11 capítulos de Entendendo Algoritmos (Grokking Algorithms) de Aditya Bhargava: animações SVG, código em Python/Java/TS e simuladores.";
   } else if (hash.startsWith("#/clean-code/capitulo/")) {
     const id = hash.replace("#/clean-code/capitulo/", "").trim();
     const ch = cleanCodeChaptersData.find((c) => c.id === id);

@@ -3,17 +3,23 @@ import { patternAnimations } from "../../books/design-patterns/examples/pattern-
 import { getLang, t, patternI18n } from "../../books/design-patterns/explanations/i18n.js";
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
 import { grokkingChaptersData } from "../../books/grokking-algorithms/explanations/chapters-data.js";
+import { javaChaptersData } from "../../books/java/explanations/chapters-data.js";
+import { nodeChaptersData } from "../../books/node/explanations/chapters-data.js";
 import { icons } from "./icons.js";
 
 const STUDIED_KEY_GOF = "gof_studied_patterns";
 const STUDIED_KEY_CC = "cleancode_studied_chapters";
 const STUDIED_KEY_GA = "grokking_studied_chapters";
+const STUDIED_KEY_JV = "java_studied_chapters";
+const STUDIED_KEY_ND = "node_studied_chapters";
 
 export function getActiveBookFromHash(hash = window.location.hash) {
   const h = hash || "#/";
   if (h === "#/" || h === "#/estante" || h === "#") return "estante";
   if (h.startsWith("#/clean-code")) return "clean-code";
   if (h.startsWith("#/grokking-algorithms")) return "grokking-algorithms";
+  if (h.startsWith("#/java")) return "java";
+  if (h.startsWith("#/node")) return "node";
   return "design-patterns";
 }
 
@@ -22,6 +28,8 @@ export function getStudiedPatterns(bookId = null) {
   let key = STUDIED_KEY_GOF;
   if (active === "clean-code") key = STUDIED_KEY_CC;
   else if (active === "grokking-algorithms") key = STUDIED_KEY_GA;
+  else if (active === "java") key = STUDIED_KEY_JV;
+  else if (active === "node") key = STUDIED_KEY_ND;
 
   try {
     return JSON.parse(localStorage.getItem(key)) || [];
@@ -31,10 +39,28 @@ export function getStudiedPatterns(bookId = null) {
 }
 
 export function togglePatternStudied(itemId) {
+  const isJV = String(itemId).startsWith("jv-cap-");
+  const isND = String(itemId).startsWith("nd-cap-");
   const isGA = String(itemId).startsWith("ga-cap-");
-  const isCC = !isGA && String(itemId).startsWith("cap-");
-  const bookId = isGA ? "grokking-algorithms" : isCC ? "clean-code" : "design-patterns";
-  const key = isGA ? STUDIED_KEY_GA : isCC ? STUDIED_KEY_CC : STUDIED_KEY_GOF;
+  const isCC = !isGA && !isJV && !isND && String(itemId).startsWith("cap-");
+  const bookId = isJV
+    ? "java"
+    : isND
+    ? "node"
+    : isGA
+    ? "grokking-algorithms"
+    : isCC
+    ? "clean-code"
+    : "design-patterns";
+  const key = isJV
+    ? STUDIED_KEY_JV
+    : isND
+    ? STUDIED_KEY_ND
+    : isGA
+    ? STUDIED_KEY_GA
+    : isCC
+    ? STUDIED_KEY_CC
+    : STUDIED_KEY_GOF;
   const studied = getStudiedPatterns(bookId);
   const idx = studied.indexOf(itemId);
   if (idx === -1) {
@@ -73,6 +99,16 @@ export function renderSidebar(sidebarEl, currentHash = "") {
     return;
   }
 
+  if (activeBook === "java") {
+    renderJavaSidebar(targetEl, hash);
+    return;
+  }
+
+  if (activeBook === "node") {
+    renderNodeSidebar(targetEl, hash);
+    return;
+  }
+
   renderGofSidebar(targetEl, hash);
 }
 
@@ -80,8 +116,15 @@ function renderBookshelfSidebar(sidebarEl, currentHash) {
   const gofStudied = getStudiedPatterns("design-patterns").length;
   const ccStudied = getStudiedPatterns("clean-code").length;
   const gaStudied = getStudiedPatterns("grokking-algorithms").length;
-  const totalStudied = gofStudied + ccStudied + gaStudied;
-  const totalItems = patternsData.length + cleanCodeChaptersData.length + grokkingChaptersData.length;
+  const jvStudied = getStudiedPatterns("java").length;
+  const ndStudied = getStudiedPatterns("node").length;
+  const totalStudied = gofStudied + ccStudied + gaStudied + jvStudied + ndStudied;
+  const totalItems =
+    patternsData.length +
+    cleanCodeChaptersData.length +
+    grokkingChaptersData.length +
+    javaChaptersData.length +
+    nodeChaptersData.length;
   const progressPercent = Math.round((totalStudied / totalItems) * 100);
 
   sidebarEl.innerHTML = `
@@ -98,7 +141,7 @@ function renderBookshelfSidebar(sidebarEl, currentHash) {
     <nav class="sidebar-nav" id="sidebar-nav-container" aria-label="Navegação da Estante Principal">
       <div class="sidebar-group">
         <button type="button" class="sidebar-group-title" data-group="estante" aria-expanded="true">
-          <span>ESTANTE DE LIVROS (3 OBRAS)</span>
+          <span>ESTANTE DE LIVROS (5 OBRAS)</span>
           <span class="chevron">${icons.chevronRight}</span>
         </button>
         <div class="sidebar-items-group is-open" id="group-estante">
@@ -128,6 +171,24 @@ function renderBookshelfSidebar(sidebarEl, currentHash) {
               </span>
               <span class="sidebar-item-right">
                 <span class="scope-mini-tag">${gaStudied}/11</span>
+              </span>
+            </a>
+            <a href="#/java" class="sidebar-item">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill cat-classic-jvm">JV</span>
+                <span class="sidebar-item-name">Java: JVM & Ecossistema</span>
+              </span>
+              <span class="sidebar-item-right">
+                <span class="scope-mini-tag">${jvStudied}/12</span>
+              </span>
+            </a>
+            <a href="#/node" class="sidebar-item">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill cat-core-eventloop">ND</span>
+                <span class="sidebar-item-name">Node.js: Event Loop & Frameworks</span>
+              </span>
+              <span class="sidebar-item-right">
+                <span class="scope-mini-tag">${ndStudied}/12</span>
               </span>
             </a>
           </div>
@@ -688,6 +749,342 @@ function renderGrokkingSidebar(sidebarEl, currentHash) {
   attachFilterAndAccordionHandlers(sidebarEl, activeGroup);
 }
 
+function renderJavaSidebar(sidebarEl, currentHash) {
+  const studied = getStudiedPatterns("java");
+  const totalChapters = javaChaptersData.length;
+  const studiedCount = studied.length;
+  const progressPercent = Math.round((studiedCount / totalChapters) * 100);
+
+  const part1 = javaChaptersData.filter((c) => c.category === "classic-jvm");
+  const part2 = javaChaptersData.filter((c) => c.category === "functional-modular");
+  const part3 = javaChaptersData.filter((c) => c.category === "modern-lts");
+  const part4 = javaChaptersData.filter((c) => c.category === "frameworks-ecosystem");
+
+  let activeGroup = "classic-jvm";
+  if (currentHash.startsWith("#/java/capitulo/")) {
+    const cid = currentHash.replace("#/java/capitulo/", "").trim();
+    const ch = javaChaptersData.find((item) => item.id === cid);
+    if (ch) activeGroup = ch.category;
+  } else if (
+    ["#/java", "#/java/versoes-e-frameworks", "#/java/referencias"].includes(currentHash)
+  ) {
+    activeGroup = "geral";
+  } else if (["#/java/laboratorios", "#/java/quizzes"].includes(currentHash)) {
+    activeGroup = "pratica";
+  }
+
+  const isGroupOpen = (grp) => grp === activeGroup;
+
+  sidebarEl.innerHTML = `
+    <div class="sidebar-search-box">
+      <div class="search-input-wrapper">
+        <span class="search-icon">${icons.search}</span>
+        <input
+          type="search"
+          id="sidebar-filter-input"
+          placeholder="Buscar capítulo do Java (ex: Loom, Generics)..."
+          aria-label="Buscar capítulo do Java"
+        />
+      </div>
+    </div>
+
+    <div class="study-tracker">
+      <div class="study-tracker-row">
+        <span class="study-tracker-label">PROGRESSO EM JAVA & JVM</span>
+        <strong id="study-count-text">${studiedCount}/${totalChapters} ${t("completeLabel")} (${progressPercent}%)</strong>
+      </div>
+      <div class="study-progress-bar-bg" role="progressbar" aria-valuenow="${progressPercent}" aria-valuemin="0" aria-valuemax="100">
+        <div class="study-progress-bar-fill" id="study-progress-fill" style="width: ${progressPercent}%;"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-empty-state" id="sidebar-empty-state" hidden>
+      <p>${t("searchNoResults")}</p>
+      <button type="button" class="pe-ctrl-btn" id="sidebar-clear-filter-btn">${t("clearFilter")}</button>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav-container" aria-label="Java Chapters Navigation">
+      <!-- Parte 1: Gênese & JVM (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="classic-jvm" aria-expanded="${isGroupOpen("classic-jvm")}">
+          <span>1. GÊNESE DA JVM & BYTECODE (3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("classic-jvm") ? "is-open" : ""}" id="group-classic-jvm">
+          <div class="sidebar-items-inner">
+            ${part1.map((c) => renderJavaItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 2: Funcional & Modular (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="functional-modular" aria-expanded="${isGroupOpen("functional-modular")}">
+          <span>2. FUNCIONAL & JPMS (3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("functional-modular") ? "is-open" : ""}" id="group-functional-modular">
+          <div class="sidebar-items-inner">
+            ${part2.map((c) => renderJavaItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 3: Moderno & LTS (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="modern-lts" aria-expanded="${isGroupOpen("modern-lts")}">
+          <span>3. MODERNO & VIRTUAL THREADS (3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("modern-lts") ? "is-open" : ""}" id="group-modern-lts">
+          <div class="sidebar-items-inner">
+            ${part3.map((c) => renderJavaItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 4: Frameworks Enterprise (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="frameworks-ecosystem" aria-expanded="${isGroupOpen("frameworks-ecosystem")}">
+          <span>4. FRAMEWORKS ENTERPRISE (3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("frameworks-ecosystem") ? "is-open" : ""}" id="group-frameworks-ecosystem">
+          <div class="sidebar-items-inner">
+            ${part4.map((c) => renderJavaItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Visão Geral & Histórico -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="geral" aria-expanded="${isGroupOpen("geral")}">
+          <span>VISÃO GERAL & HISTÓRICO</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("geral") ? "is-open" : ""}" id="group-geral">
+          <div class="sidebar-items-inner">
+            <a href="#/java" class="sidebar-item ${currentHash === "#/java" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">00</span>
+                <span>Catálogo (12 Capítulos)</span>
+              </span>
+            </a>
+            <a href="#/java/versoes-e-frameworks" class="sidebar-item ${currentHash === "#/java/versoes-e-frameworks" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">VF</span>
+                <span>Versões & Frameworks</span>
+              </span>
+            </a>
+            <a href="#/java/referencias" class="sidebar-item ${currentHash === "#/java/referencias" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">RF</span>
+                <span>Autores & Bibliografia</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Laboratórios & Prática -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="pratica" aria-expanded="${isGroupOpen("pratica")}">
+          <span>LABORATÓRIOS & PRÁTICA</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("pratica") ? "is-open" : ""}" id="group-pratica">
+          <div class="sidebar-items-inner">
+            <a href="#/java/laboratorios" class="sidebar-item ${currentHash === "#/java/laboratorios" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">LB</span>
+                <span>6 Labs & Simuladores JVM</span>
+              </span>
+              <span class="item-badge">6 LABS</span>
+            </a>
+            <a href="#/java/quizzes" class="sidebar-item ${currentHash === "#/java/quizzes" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">QZ</span>
+                <span>Quizzes & Exercícios</span>
+              </span>
+              <span class="item-badge">QUIZ</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  `;
+
+  attachFilterAndAccordionHandlers(sidebarEl, activeGroup);
+}
+
+function renderNodeSidebar(sidebarEl, currentHash) {
+  const studied = getStudiedPatterns("node");
+  const totalChapters = nodeChaptersData.length;
+  const studiedCount = studied.length;
+  const progressPercent = Math.round((studiedCount / totalChapters) * 100);
+
+  const part1 = nodeChaptersData.filter((c) => c.category === "core-eventloop");
+  const part2 = nodeChaptersData.filter((c) => c.category === "esm-concurrency");
+  const part3 = nodeChaptersData.filter((c) => c.category === "modern-runtime");
+  const part4 = nodeChaptersData.filter((c) => c.category === "node-frameworks");
+
+  let activeGroup = "core-eventloop";
+  if (currentHash.startsWith("#/node/capitulo/")) {
+    const cid = currentHash.replace("#/node/capitulo/", "").trim();
+    const ch = nodeChaptersData.find((item) => item.id === cid);
+    if (ch) activeGroup = ch.category;
+  } else if (
+    ["#/node", "#/node/versoes-e-frameworks", "#/node/referencias"].includes(currentHash)
+  ) {
+    activeGroup = "geral";
+  } else if (["#/node/laboratorios", "#/node/quizzes"].includes(currentHash)) {
+    activeGroup = "pratica";
+  }
+
+  const isGroupOpen = (grp) => grp === activeGroup;
+
+  sidebarEl.innerHTML = `
+    <div class="sidebar-search-box">
+      <div class="search-input-wrapper">
+        <span class="search-icon">${icons.search}</span>
+        <input
+          type="search"
+          id="sidebar-filter-input"
+          placeholder="Buscar capítulo do Node (ex: Event Loop, Fastify)..."
+          aria-label="Buscar capítulo do Node.js"
+        />
+      </div>
+    </div>
+
+    <div class="study-tracker">
+      <div class="study-tracker-row">
+        <span class="study-tracker-label">PROGRESSO EM NODE.JS</span>
+        <strong id="study-count-text">${studiedCount}/${totalChapters} ${t("completeLabel")} (${progressPercent}%)</strong>
+      </div>
+      <div class="study-progress-bar-bg" role="progressbar" aria-valuenow="${progressPercent}" aria-valuemin="0" aria-valuemax="100">
+        <div class="study-progress-bar-fill" id="study-progress-fill" style="width: ${progressPercent}%;"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-empty-state" id="sidebar-empty-state" hidden>
+      <p>${t("searchNoResults")}</p>
+      <button type="button" class="pe-ctrl-btn" id="sidebar-clear-filter-btn">${t("clearFilter")}</button>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav-container" aria-label="Node.js Chapters Navigation">
+      <!-- Parte 1: Event Loop & Streams (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="core-eventloop" aria-expanded="${isGroupOpen("core-eventloop")}">
+          <span>1. EVENT LOOP & STREAMS (3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("core-eventloop") ? "is-open" : ""}" id="group-core-eventloop">
+          <div class="sidebar-items-inner">
+            ${part1.map((c) => renderNodeItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 2: ESM & Concorrência (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="esm-concurrency" aria-expanded="${isGroupOpen("esm-concurrency")}">
+          <span>2. ESM & WORKER THREADS (3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("esm-concurrency") ? "is-open" : ""}" id="group-esm-concurrency">
+          <div class="sidebar-items-inner">
+            ${part2.map((c) => renderNodeItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 3: Runtime Moderno & TS (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="modern-runtime" aria-expanded="${isGroupOpen("modern-runtime")}">
+          <span>3. RUNTIME MODERNO & TS (3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("modern-runtime") ? "is-open" : ""}" id="group-modern-runtime">
+          <div class="sidebar-items-inner">
+            ${part3.map((c) => renderNodeItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte 4: Frameworks Web (3) -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="node-frameworks" aria-expanded="${isGroupOpen("node-frameworks")}">
+          <span>4. FRAMEWORKS WEB (3)</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("node-frameworks") ? "is-open" : ""}" id="group-node-frameworks">
+          <div class="sidebar-items-inner">
+            ${part4.map((c) => renderNodeItem(c, currentHash, studied)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Visão Geral & Histórico -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="geral" aria-expanded="${isGroupOpen("geral")}">
+          <span>VISÃO GERAL & HISTÓRICO</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("geral") ? "is-open" : ""}" id="group-geral">
+          <div class="sidebar-items-inner">
+            <a href="#/node" class="sidebar-item ${currentHash === "#/node" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">00</span>
+                <span>Catálogo (12 Capítulos)</span>
+              </span>
+            </a>
+            <a href="#/node/versoes-e-frameworks" class="sidebar-item ${currentHash === "#/node/versoes-e-frameworks" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">VF</span>
+                <span>Versões & Frameworks</span>
+              </span>
+            </a>
+            <a href="#/node/referencias" class="sidebar-item ${currentHash === "#/node/referencias" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">RF</span>
+                <span>Autores & Bibliografia</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Laboratórios & Prática -->
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-group-title" data-group="pratica" aria-expanded="${isGroupOpen("pratica")}">
+          <span>LABORATÓRIOS & PRÁTICA</span>
+          <span class="chevron">${icons.chevronRight}</span>
+        </button>
+        <div class="sidebar-items-group ${isGroupOpen("pratica") ? "is-open" : ""}" id="group-pratica">
+          <div class="sidebar-items-inner">
+            <a href="#/node/laboratorios" class="sidebar-item ${currentHash === "#/node/laboratorios" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">LB</span>
+                <span>6 Labs & Simuladores Node</span>
+              </span>
+              <span class="item-badge">6 LABS</span>
+            </a>
+            <a href="#/node/quizzes" class="sidebar-item ${currentHash === "#/node/quizzes" ? "active" : ""}">
+              <span class="sidebar-item-left">
+                <span class="sidebar-code-pill">QZ</span>
+                <span>Quizzes & Exercícios</span>
+              </span>
+              <span class="item-badge">QUIZ</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  `;
+
+  attachFilterAndAccordionHandlers(sidebarEl, activeGroup);
+}
+
 function attachFilterAndAccordionHandlers(sidebarEl, initialActiveGroup) {
   let activeGroup = initialActiveGroup;
   const filterInput = sidebarEl.querySelector("#sidebar-filter-input");
@@ -854,13 +1251,71 @@ function renderGrokkingItem(ch, currentHash, studied) {
   `;
 }
 
+function renderJavaItem(ch, currentHash, studied) {
+  const isStudied = studied.includes(ch.id);
+  const isActive = currentHash === `#/java/capitulo/${ch.id}`;
+  const lang = getLang();
+  const tr = patternI18n[ch.id]?.[lang];
+  const displayName = tr?.name || tr?.localName || ch.name;
+
+  return `
+    <a href="#/java/capitulo/${ch.id}" class="sidebar-item ${isActive ? "active" : ""}" data-pattern-id="${ch.id}">
+      <span class="sidebar-item-left">
+        <span class="sidebar-code-pill cat-${ch.category}">${ch.code}</span>
+        <span class="sidebar-item-name">${displayName}</span>
+      </span>
+      <span class="sidebar-item-right">
+        ${isStudied ? `<span class="read-check" title="${t("markedStudied")}">${icons.check}</span>` : `<span class="scope-mini-tag">P.${ch.gofPage}</span>`}
+      </span>
+    </a>
+  `;
+}
+
+function renderNodeItem(ch, currentHash, studied) {
+  const isStudied = studied.includes(ch.id);
+  const isActive = currentHash === `#/node/capitulo/${ch.id}`;
+  const lang = getLang();
+  const tr = patternI18n[ch.id]?.[lang];
+  const displayName = tr?.name || tr?.localName || ch.name;
+
+  return `
+    <a href="#/node/capitulo/${ch.id}" class="sidebar-item ${isActive ? "active" : ""}" data-pattern-id="${ch.id}">
+      <span class="sidebar-item-left">
+        <span class="sidebar-code-pill cat-${ch.category}">${ch.code}</span>
+        <span class="sidebar-item-name">${displayName}</span>
+      </span>
+      <span class="sidebar-item-right">
+        ${isStudied ? `<span class="read-check" title="${t("markedStudied")}">${icons.check}</span>` : `<span class="scope-mini-tag">P.${ch.gofPage}</span>`}
+      </span>
+    </a>
+  `;
+}
+
 export function updateSidebarProgress() {
   const activeBook = getActiveBookFromHash();
+  const isJV = activeBook === "java";
+  const isND = activeBook === "node";
   const isGA = activeBook === "grokking-algorithms";
   const isCC = activeBook === "clean-code";
-  const bookId = isGA ? "grokking-algorithms" : isCC ? "clean-code" : "design-patterns";
+  const bookId = isJV
+    ? "java"
+    : isND
+    ? "node"
+    : isGA
+    ? "grokking-algorithms"
+    : isCC
+    ? "clean-code"
+    : "design-patterns";
   const studied = getStudiedPatterns(bookId);
-  const total = isGA ? grokkingChaptersData.length : isCC ? cleanCodeChaptersData.length : patternsData.length;
+  const total = isJV
+    ? javaChaptersData.length
+    : isND
+    ? nodeChaptersData.length
+    : isGA
+    ? grokkingChaptersData.length
+    : isCC
+    ? cleanCodeChaptersData.length
+    : patternsData.length;
   const count = studied.length;
   const percent = Math.round((count / total) * 100);
 
@@ -870,17 +1325,23 @@ export function updateSidebarProgress() {
   if (countText) countText.textContent = `${count}/${total} ${t("completeLabel")} (${percent}%)`;
   if (fill) fill.style.width = `${percent}%`;
 
-  document.querySelectorAll(".sidebar-item[data-pattern-id]").forEach(item => {
+  document.querySelectorAll(".sidebar-item[data-pattern-id]").forEach((item) => {
     const pid = item.getAttribute("data-pattern-id");
     const rightSpan = item.querySelector(".sidebar-item-right");
     if (!rightSpan) return;
     if (studied.includes(pid)) {
       rightSpan.innerHTML = `<span class="read-check" title="${t("markedStudied")}">${icons.check}</span>`;
+    } else if (pid.startsWith("jv-cap-")) {
+      const ch = javaChaptersData.find((c) => c.id === pid);
+      rightSpan.innerHTML = `<span class="scope-mini-tag">P.${ch ? ch.gofPage : ""}</span>`;
+    } else if (pid.startsWith("nd-cap-")) {
+      const ch = nodeChaptersData.find((c) => c.id === pid);
+      rightSpan.innerHTML = `<span class="scope-mini-tag">P.${ch ? ch.gofPage : ""}</span>`;
     } else if (pid.startsWith("ga-cap-")) {
-      const ch = grokkingChaptersData.find(c => c.id === pid);
+      const ch = grokkingChaptersData.find((c) => c.id === pid);
       rightSpan.innerHTML = `<span class="scope-mini-tag">P.${ch ? ch.gofPage : ""}</span>`;
     } else if (pid.startsWith("cap-")) {
-      const ch = cleanCodeChaptersData.find(c => c.id === pid);
+      const ch = cleanCodeChaptersData.find((c) => c.id === pid);
       rightSpan.innerHTML = `<span class="scope-mini-tag">P.${ch ? ch.gofPage : ""}</span>`;
     } else {
       const anim = patternAnimations[pid];

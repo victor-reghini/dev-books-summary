@@ -206,6 +206,70 @@
   border-left: 3px solid #f59e0b;
 }
 
+/* Tema da Capa 4: Java (JDK 1.0 a 25 LTS & Frameworks Enterprise) */
+.book-java-theme {
+  background: linear-gradient(165deg, #271712 0%, #1c1f2e 60%, #0f172a 100%);
+  color: #f8fafc;
+}
+
+.jv-publisher-tag {
+  display: inline-block;
+  background-color: #ea580c;
+  color: #fff7ed;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 3px;
+}
+
+.jv-cover-art {
+  margin: 0.55rem 0;
+}
+
+.book-java-theme .jv-cover-title-band {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.78);
+  border-left: 3px solid #f97316;
+}
+
+/* Tema da Capa 5: Node.js (V8, libuv, Event Loop & Frameworks Backend) */
+.book-node-theme {
+  background: linear-gradient(165deg, #0d2218 0%, #13232c 60%, #0f172a 100%);
+  color: #f8fafc;
+}
+
+.nd-publisher-tag {
+  display: inline-block;
+  background-color: #16a34a;
+  color: #f0fdf4;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 3px;
+}
+
+.nd-cover-art {
+  margin: 0.55rem 0;
+}
+
+.book-node-theme .nd-cover-title-band {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.78);
+  border-left: 3px solid #22c55e;
+}
+
 .cover-main-title {
   font-family: var(--font-display);
   font-size: 1.22rem;
@@ -363,7 +427,7 @@
   border-color: var(--border-strong);
 }
 
-/* Categoria 4 do Clean Code (Estudos de Caso & Heurísticas) e Categorias de Entendendo Algoritmos */
+/* Categoria 4 do Clean Code, Entendendo Algoritmos, Java e Node.js */
 .sidebar-code-pill.cat-estudos-de-caso,
 .pe-card-code.cat-estudos-de-caso,
 .quiz-cat-badge.cat-estudos-de-caso,
@@ -372,37 +436,55 @@
 .pe-card-code.cat-advanced,
 .pe-card-code.cat-avancados,
 .quiz-cat-badge.cat-advanced,
-.quiz-cat-badge.cat-avancados {
+.quiz-cat-badge.cat-avancados,
+.sidebar-code-pill.cat-frameworks-ecosystem,
+.sidebar-code-pill.cat-node-frameworks,
+.pe-card-code.cat-frameworks-ecosystem,
+.pe-card-code.cat-node-frameworks,
+.quiz-cat-badge.cat-frameworks-ecosystem,
+.quiz-cat-badge.cat-node-frameworks {
   background-color: rgba(212, 169, 98, 0.15);
   color: var(--accent-warning);
   border: 1px solid rgba(212, 169, 98, 0.35);
 }
 
 .cc-section-dot.cat-foundations,
-.cc-section-dot.cat-fundamentos {
+.cc-section-dot.cat-fundamentos,
+.cc-section-dot.cat-classic-jvm,
+.cc-section-dot.cat-core-eventloop {
   background-color: var(--cat-creational);
 }
 
 .cc-section-dot.cat-divide-hash,
 .cc-section-dot.cat-dividir-conquistar,
-.cc-section-dot.cat-tabelas-hash {
+.cc-section-dot.cat-tabelas-hash,
+.cc-section-dot.cat-functional-modular,
+.cc-section-dot.cat-esm-concurrency {
   background-color: var(--cat-structural);
 }
 
 .cc-section-dot.cat-graphs,
-.cc-section-dot.cat-grafos {
+.cc-section-dot.cat-grafos,
+.cc-section-dot.cat-modern-lts,
+.cc-section-dot.cat-modern-runtime {
   background-color: var(--cat-behavioral);
 }
 
 .cc-section-dot.cat-advanced,
-.cc-section-dot.cat-avancados {
+.cc-section-dot.cat-avancados,
+.cc-section-dot.cat-frameworks-ecosystem,
+.cc-section-dot.cat-node-frameworks {
   background-color: var(--accent-warning);
 }
 
 .pe-card-code.cat-foundations,
 .pe-card-code.cat-fundamentos,
 .quiz-cat-badge.cat-foundations,
-.quiz-cat-badge.cat-fundamentos {
+.quiz-cat-badge.cat-fundamentos,
+.pe-card-code.cat-classic-jvm,
+.pe-card-code.cat-core-eventloop,
+.quiz-cat-badge.cat-classic-jvm,
+.quiz-cat-badge.cat-core-eventloop {
   background-color: var(--cat-creational-bg);
   color: var(--cat-creational);
 }
@@ -412,7 +494,11 @@
 .pe-card-code.cat-tabelas-hash,
 .quiz-cat-badge.cat-divide-hash,
 .quiz-cat-badge.cat-dividir-conquistar,
-.quiz-cat-badge.cat-tabelas-hash {
+.quiz-cat-badge.cat-tabelas-hash,
+.pe-card-code.cat-functional-modular,
+.pe-card-code.cat-esm-concurrency,
+.quiz-cat-badge.cat-functional-modular,
+.quiz-cat-badge.cat-esm-concurrency {
   background-color: var(--cat-structural-bg);
   color: var(--cat-structural);
 }
@@ -420,21 +506,31 @@
 .pe-card-code.cat-graphs,
 .pe-card-code.cat-grafos,
 .quiz-cat-badge.cat-graphs,
-.quiz-cat-badge.cat-grafos {
+.quiz-cat-badge.cat-grafos,
+.pe-card-code.cat-modern-lts,
+.pe-card-code.cat-modern-runtime,
+.quiz-cat-badge.cat-modern-lts,
+.quiz-cat-badge.cat-modern-runtime {
   background-color: var(--cat-behavioral-bg);
   color: var(--cat-behavioral);
 }
 
 .pe-card-cat-tag.cat-estudos-de-caso,
 .pe-card-cat-tag.cat-advanced,
-.pe-card-cat-tag.cat-avancados {
+.pe-card-cat-tag.cat-avancados,
+.pe-card-cat-tag.cat-frameworks-ecosystem,
+.pe-card-cat-tag.cat-node-frameworks {
   color: var(--accent-warning);
 }
 
 .pe-card-cat-tag.cat-foundations,
 .pe-card-cat-tag.cat-fundamentos,
 .sidebar-code-pill.cat-foundations,
-.sidebar-code-pill.cat-fundamentos {
+.sidebar-code-pill.cat-fundamentos,
+.pe-card-cat-tag.cat-classic-jvm,
+.pe-card-cat-tag.cat-core-eventloop,
+.sidebar-code-pill.cat-classic-jvm,
+.sidebar-code-pill.cat-core-eventloop {
   color: var(--cat-creational);
 }
 
@@ -443,14 +539,22 @@
 .pe-card-cat-tag.cat-tabelas-hash,
 .sidebar-code-pill.cat-divide-hash,
 .sidebar-code-pill.cat-dividir-conquistar,
-.sidebar-code-pill.cat-tabelas-hash {
+.sidebar-code-pill.cat-tabelas-hash,
+.pe-card-cat-tag.cat-functional-modular,
+.pe-card-cat-tag.cat-esm-concurrency,
+.sidebar-code-pill.cat-functional-modular,
+.sidebar-code-pill.cat-esm-concurrency {
   color: var(--cat-structural);
 }
 
 .pe-card-cat-tag.cat-graphs,
 .pe-card-cat-tag.cat-grafos,
 .sidebar-code-pill.cat-graphs,
-.sidebar-code-pill.cat-grafos {
+.sidebar-code-pill.cat-grafos,
+.pe-card-cat-tag.cat-modern-lts,
+.pe-card-cat-tag.cat-modern-runtime,
+.sidebar-code-pill.cat-modern-lts,
+.sidebar-code-pill.cat-modern-runtime {
   color: var(--cat-behavioral);
 }
 

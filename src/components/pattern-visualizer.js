@@ -1,6 +1,8 @@
 import { patternAnimations, buildObjectInspectorState } from "../../books/design-patterns/examples/pattern-animations.js";
 import { cleanCodeAnimations } from "../../books/clean-code/examples/clean-code-animations.js";
 import { grokkingAlgorithmsAnimations } from "../../books/grokking-algorithms/examples/grokking-algorithms-animations.js";
+import { javaAnimations } from "../../books/java/examples/java-animations.js";
+import { nodeAnimations } from "../../books/node/examples/node-animations.js";
 import { highlightJson } from "../utils/code-highlighter.js";
 import { getLang, t } from "../../books/design-patterns/explanations/i18n.js";
 import { cleanCodeAnimStepsI18n } from "../../books/design-patterns/examples/flowchart-i18n.js";
@@ -13,6 +15,8 @@ function normalizeAnimSpec(raw, patternId = "") {
   if (raw.steps?.[0]?.packet) return raw; // Already in GoF format
 
   const pid = patternId || raw.id || "";
+  const isJava = String(pid).startsWith("jv-cap-");
+  const isNode = String(pid).startsWith("nd-cap-");
   const isGrokking = String(pid).startsWith("ga-cap-");
   const ccI18n = cleanCodeAnimStepsI18n[pid] || cleanCodeAnimStepsI18n[raw.id];
 
@@ -24,7 +28,15 @@ function normalizeAnimSpec(raw, patternId = "") {
       id: n.id,
       label: n.label,
       stereotype: n.stereotype || n.stereo || "«participant»",
-      addr: n.addr || (isGrokking ? `0xGA${idx}0` : `0xCC${idx}0`),
+      addr:
+        n.addr ||
+        (isJava
+          ? `0xJV${idx}0`
+          : isNode
+          ? `0xND${idx}0`
+          : isGrokking
+          ? `0xGA${idx}0`
+          : `0xCC${idx}0`),
       x: n.x,
       y: n.y,
       color: n.color || paletteCycle[idx % paletteCycle.length]
@@ -48,7 +60,23 @@ function normalizeAnimSpec(raw, patternId = "") {
 
       return {
         id: idx + 1,
-        tag: isGrokking
+        tag: isJava
+          ? {
+              pt: `ETAPA 0${idx + 1} • FLUXO JVM & BYTECODE`,
+              en: `STEP 0${idx + 1} • JVM & BYTECODE FLOW`,
+              es: `PASO 0${idx + 1} • FLUJO JVM Y BYTECODE`,
+              it: `PASSAGGIO 0${idx + 1} • FLUSSO JVM E BYTECODE`,
+              fr: `ÉTAPE 0${idx + 1} • FLUX JVM ET BYTECODE`
+            }
+          : isNode
+          ? {
+              pt: `ETAPA 0${idx + 1} • FLUXO EVENT LOOP & V8`,
+              en: `STEP 0${idx + 1} • EVENT LOOP & V8 FLOW`,
+              es: `PASO 0${idx + 1} • FLUJO EVENT LOOP Y V8`,
+              it: `PASSAGGIO 0${idx + 1} • FLUSSO EVENT LOOP E V8`,
+              fr: `ÉTAPE 0${idx + 1} • FLUX EVENT LOOP ET V8`
+            }
+          : isGrokking
           ? {
               pt: `ETAPA 0${idx + 1} • FLUXO ALGORÍTMICO`,
               en: `STEP 0${idx + 1} • ALGORITHMIC FLOW`,
@@ -81,8 +109,14 @@ function normalizeAnimSpec(raw, patternId = "") {
           from: s.from,
           to: s.to,
           call: s.call,
-          returnVal: isGrokking ? "OK • STEP" : "OK • CLEAN",
-          type: isGrokking ? "ALGO" : "REFACTOR"
+          returnVal: isJava
+            ? "OK • JVM"
+            : isNode
+            ? "OK • V8"
+            : isGrokking
+            ? "OK • STEP"
+            : "OK • CLEAN",
+          type: isJava ? "JVM" : isNode ? "EVENTLOOP" : isGrokking ? "ALGO" : "REFACTOR"
         },
         activeNodes: s.activeNodes || [s.from, s.to],
         nodeStates,
@@ -185,7 +219,9 @@ export function renderPatternVisualizer(container, pattern) {
   const anim = normalizeAnimSpec(
     patternAnimations[pattern.id] ||
       cleanCodeAnimations[pattern.id] ||
-      grokkingAlgorithmsAnimations[pattern.id],
+      grokkingAlgorithmsAnimations[pattern.id] ||
+      javaAnimations[pattern.id] ||
+      nodeAnimations[pattern.id],
     pattern.id
   );
   if (!anim) {

@@ -14,6 +14,16 @@ import {
   grokkingScenariosData,
   grokkingPracticalExercisesData
 } from "../../books/grokking-algorithms/exercises/grokking-algorithms-quizzes.js";
+import {
+  javaQuizzesData,
+  javaScenariosData,
+  javaPracticalExercisesData
+} from "../../books/java/exercises/java-quizzes.js";
+import {
+  nodeQuizzesData,
+  nodeScenariosData,
+  nodePracticalExercisesData
+} from "../../books/node/exercises/node-quizzes.js";
 import { highlightCode } from "../utils/code-highlighter.js";
 import { icons } from "./icons.js";
 import { getLang, t } from "../../books/design-patterns/explanations/i18n.js";
@@ -39,7 +49,15 @@ const CATEGORY_LABELS = {
   "dividir-conquistar": "2. Dividir & Conquistar",
   "tabelas-hash": "2. Tabelas Hash",
   grafos: "3. Grafos & Dijkstra",
-  avancados: "4. Gulosos, DP & KNN"
+  avancados: "4. Gulosos, DP & KNN",
+  "classic-jvm": "1. Gênese da JVM & Bytecode",
+  "functional-modular": "2. Funcional & JPMS",
+  "modern-lts": "3. Moderno & Virtual Threads",
+  "frameworks-ecosystem": "4. Frameworks Enterprise",
+  "core-eventloop": "1. Event Loop & Streams",
+  "esm-concurrency": "2. ESM & Worker Threads",
+  "modern-runtime": "3. Runtime Moderno & TS",
+  "node-frameworks": "4. Frameworks Web"
 };
 
 export function getSavedAnswers() {
@@ -108,7 +126,24 @@ export function renderSingleQuiz(container, rawQuestion, options = {}) {
           ${getDifficultyBadge(question.difficulty)}
         </div>
         ${question.patternId && question.patternId !== "book-overview" && !options.hidePatternLink ? `
-          <a href="${question.patternId.startsWith("ga-cap-") ? `#/grokking-algorithms/capitulo/${question.patternId}` : question.patternId.startsWith("cap-") ? `#/clean-code/capitulo/${question.patternId}` : `#/padrao/${question.patternId}`}" class="quiz-pattern-link">${(question.patternId.startsWith("cap-") || question.patternId.startsWith("ga-cap-")) ? (t("quizReviewChapter") || "Revisar capítulo") : (t("quizReviewPattern") || "Revisar padrão")}</a>
+          <a href="${
+            question.patternId.startsWith("jv-cap-")
+              ? `#/java/capitulo/${question.patternId}`
+              : question.patternId.startsWith("nd-cap-")
+              ? `#/node/capitulo/${question.patternId}`
+              : question.patternId.startsWith("ga-cap-")
+              ? `#/grokking-algorithms/capitulo/${question.patternId}`
+              : question.patternId.startsWith("cap-")
+              ? `#/clean-code/capitulo/${question.patternId}`
+              : `#/padrao/${question.patternId}`
+          }" class="quiz-pattern-link">${
+            question.patternId.startsWith("cap-") ||
+            question.patternId.startsWith("ga-cap-") ||
+            question.patternId.startsWith("jv-cap-") ||
+            question.patternId.startsWith("nd-cap-")
+              ? t("quizReviewChapter") || "Revisar capítulo"
+              : t("quizReviewPattern") || "Revisar padrão"
+          }</a>
         ` : ""}
       </div>
 
@@ -396,12 +431,46 @@ export function renderPracticalExercise(container, exercise, options = {}) {
 export function renderPatternExercises(container, patternId) {
   if (!container) return;
 
+  const isJava = String(patternId).startsWith("jv-cap-");
+  const isNode = String(patternId).startsWith("nd-cap-");
   const isGrokking = String(patternId).startsWith("ga-cap-");
-  const isCleanCode = String(patternId).startsWith("cap-");
-  const activeQuizzes = isGrokking ? grokkingQuizzesData : isCleanCode ? cleanCodeQuizzesData : quizzesData;
-  const activeScenarios = isGrokking ? grokkingScenariosData : isCleanCode ? cleanCodeScenariosData : scenariosData;
-  const activePracticals = isGrokking ? grokkingPracticalExercisesData : isCleanCode ? cleanCodePracticalExercisesData : practicalExercisesData;
-  const hubHref = isGrokking ? "#/grokking-algorithms/quizzes" : isCleanCode ? "#/clean-code/quizzes" : "#/quizzes";
+  const isCleanCode = !isJava && !isNode && !isGrokking && String(patternId).startsWith("cap-");
+  const activeQuizzes = isJava
+    ? javaQuizzesData
+    : isNode
+    ? nodeQuizzesData
+    : isGrokking
+    ? grokkingQuizzesData
+    : isCleanCode
+    ? cleanCodeQuizzesData
+    : quizzesData;
+  const activeScenarios = isJava
+    ? javaScenariosData
+    : isNode
+    ? nodeScenariosData
+    : isGrokking
+    ? grokkingScenariosData
+    : isCleanCode
+    ? cleanCodeScenariosData
+    : scenariosData;
+  const activePracticals = isJava
+    ? javaPracticalExercisesData
+    : isNode
+    ? nodePracticalExercisesData
+    : isGrokking
+    ? grokkingPracticalExercisesData
+    : isCleanCode
+    ? cleanCodePracticalExercisesData
+    : practicalExercisesData;
+  const hubHref = isJava
+    ? "#/java/quizzes"
+    : isNode
+    ? "#/node/quizzes"
+    : isGrokking
+    ? "#/grokking-algorithms/quizzes"
+    : isCleanCode
+    ? "#/clean-code/quizzes"
+    : "#/quizzes";
 
   const patternQuestions = activeQuizzes.filter(q => q.patternId === patternId);
   const patternScenarios = activeScenarios.filter(s => s.patternId === patternId);
@@ -458,30 +527,65 @@ export function renderQuizzesPage(container, overrideState = {}) {
   Object.assign(hubFilterState, overrideState);
   const { activeTab, difficulty, category } = hubFilterState;
 
+  const isJava =
+    overrideState.book === "java" ||
+    (typeof window !== "undefined" && window.location.hash.startsWith("#/java"));
+  const isNode =
+    !isJava &&
+    (overrideState.book === "node" ||
+      (typeof window !== "undefined" && window.location.hash.startsWith("#/node")));
   const isGrokking =
-    overrideState.book === "grokking-algorithms" ||
-    (typeof window !== "undefined" && window.location.hash.startsWith("#/grokking-algorithms"));
+    !isJava &&
+    !isNode &&
+    (overrideState.book === "grokking-algorithms" ||
+      (typeof window !== "undefined" && window.location.hash.startsWith("#/grokking-algorithms")));
   const isCleanCode =
+    !isJava &&
+    !isNode &&
     !isGrokking &&
     (overrideState.book === "clean-code" ||
       (typeof window !== "undefined" && window.location.hash.startsWith("#/clean-code")));
 
-  const activeQuizzes = isGrokking ? grokkingQuizzesData : isCleanCode ? cleanCodeQuizzesData : quizzesData;
-  const activeScenarios = isGrokking ? grokkingScenariosData : isCleanCode ? cleanCodeScenariosData : scenariosData;
-  const activePracticals = isGrokking ? grokkingPracticalExercisesData : isCleanCode ? cleanCodePracticalExercisesData : practicalExercisesData;
+  const activeQuizzes = isJava
+    ? javaQuizzesData
+    : isNode
+    ? nodeQuizzesData
+    : isGrokking
+    ? grokkingQuizzesData
+    : isCleanCode
+    ? cleanCodeQuizzesData
+    : quizzesData;
+  const activeScenarios = isJava
+    ? javaScenariosData
+    : isNode
+    ? nodeScenariosData
+    : isGrokking
+    ? grokkingScenariosData
+    : isCleanCode
+    ? cleanCodeScenariosData
+    : scenariosData;
+  const activePracticals = isJava
+    ? javaPracticalExercisesData
+    : isNode
+    ? nodePracticalExercisesData
+    : isGrokking
+    ? grokkingPracticalExercisesData
+    : isCleanCode
+    ? cleanCodePracticalExercisesData
+    : practicalExercisesData;
 
   const saved = getSavedAnswers();
   const pracState = getPracticalState();
 
   const allEvaluated = [...activeQuizzes, ...activeScenarios];
   let correctCount = 0;
-  allEvaluated.forEach(item => {
+  allEvaluated.forEach((item) => {
     if (saved[item.id] !== undefined && item.options[saved[item.id]]?.isCorrect) {
       correctCount++;
     }
   });
 
-  const completedPracticalCount = activePracticals.filter(ex => pracState[ex.id]?.completed).length;
+  const completedPracticalCount = activePracticals.filter((ex) => pracState[ex.id]?.completed).length;
   const percent = Math.round((correctCount / allEvaluated.length) * 100);
 
   // Seleciona a coleção ativa conforme a aba
@@ -489,19 +593,44 @@ export function renderQuizzesPage(container, overrideState = {}) {
   if (activeTab === "cenarios") sourceList = activeScenarios;
   if (activeTab === "praticos") sourceList = activePracticals;
 
-  const filtered = sourceList.filter(item => {
+  const filtered = sourceList.filter((item) => {
     const passDiff = difficulty === "todos" || item.difficulty === difficulty;
     const passCat = category === "todos" || item.category === category;
     return passDiff && passCat;
   });
 
-  const countByDiff = (diffKey) => sourceList.filter(i => (category === "todos" || i.category === category) && (diffKey === "todos" || i.difficulty === diffKey)).length;
+  const countByDiff = (diffKey) =>
+    sourceList.filter(
+      (i) =>
+        (category === "todos" || i.category === category) &&
+        (diffKey === "todos" || i.difficulty === diffKey)
+    ).length;
 
   container.innerHTML = `
     <div class="quizzes-hub">
       <div class="quizzes-hero">
-        <h1 class="page-title">${isGrokking ? "Central de Fixação, Cenários & Prática • Entendendo Algoritmos" : isCleanCode ? "Central de Fixação, Cenários & Prática • Código Limpo" : "Central de Fixação, Cenários & Prática GoF"}</h1>
-        <p class="page-subtitle">${isGrokking ? "Exercícios oficiais do livro de Aditya Y. Bhargava sobre os 11 capítulos (Pesquisa Binária, Quicksort, Hash, BFS, Dijkstra, Gulosos, DP e KNN), cenários de engenharia e desafios práticos." : isCleanCode ? "Exercícios sobre os 17 capítulos e 66 heurísticas (C1–T9) de Robert C. Martin, cenários de refatoração e desafios práticos Mão na Massa." : "Exercícios graduados em níveis Fácil, Médio e Difícil, cenários fictícios de arquitetura para tomada de decisão e desafios práticos de código."}</p>
+        <h1 class="page-title">${
+          isJava
+            ? "Central de Fixação, Cenários & Prática • Java & JVM"
+            : isNode
+            ? "Central de Fixação, Cenários & Prática • Node.js & Event Loop"
+            : isGrokking
+            ? "Central de Fixação, Cenários & Prática • Entendendo Algoritmos"
+            : isCleanCode
+            ? "Central de Fixação, Cenários & Prática • Código Limpo"
+            : "Central de Fixação, Cenários & Prática GoF"
+        }</h1>
+        <p class="page-subtitle">${
+          isJava
+            ? "Exercícios práticos cobrindo os 12 capítulos do Java (JDK 1.0 a 25 LTS, Spring Boot 3 e Quarkus), cenários arquiteturais corporativos e desafios livres."
+            : isNode
+            ? "Exercícios práticos cobrindo os 12 capítulos do Node.js (0.10 a 24, Express 5, Fastify e NestJS), cenários de concorrência e desafios livres."
+            : isGrokking
+            ? "Exercícios oficiais do livro de Aditya Y. Bhargava sobre os 11 capítulos (Pesquisa Binária, Quicksort, Hash, BFS, Dijkstra, Gulosos, DP e KNN), cenários de engenharia e desafios práticos."
+            : isCleanCode
+            ? "Exercícios sobre os 17 capítulos e 66 heurísticas (C1-T9) de Robert C. Martin, cenários de refatoração e desafios práticos Mão na Massa."
+            : "Exercícios graduados em níveis Fácil, Médio e Difícil, cenários fictícios de arquitetura para tomada de decisão e desafios práticos de código."
+        }</p>
       </div>
 
       <!-- Abas de Modalidade de Exercício -->
@@ -549,6 +678,37 @@ export function renderQuizzesPage(container, overrideState = {}) {
 
           <div class="filter-group-label">Categoria:</div>
           <div class="factory-selector-tabs" id="category-filter-tabs">
+            <button type="button" class="btn btn-tab ${category === "todos" ? "active" : ""}" data-cat="todos">Todas</button>
+            ${isJava ? `
+              <button type="button" class="btn btn-tab ${category === "classic-jvm" ? "active" : ""}" data-cat="classic-jvm">1. Gênese & JVM</button>
+              <button type="button" class="btn btn-tab ${category === "functional-modular" ? "active" : ""}" data-cat="functional-modular">2. Funcional & JPMS</button>
+              <button type="button" class="btn btn-tab ${category === "modern-lts" ? "active" : ""}" data-cat="modern-lts">3. Moderno & Loom</button>
+              <button type="button" class="btn btn-tab ${category === "frameworks-ecosystem" ? "active" : ""}" data-cat="frameworks-ecosystem">4. Frameworks Enterprise</button>
+            ` : isNode ? `
+              <button type="button" class="btn btn-tab ${category === "core-eventloop" ? "active" : ""}" data-cat="core-eventloop">1. Event Loop & Streams</button>
+              <button type="button" class="btn btn-tab ${category === "esm-concurrency" ? "active" : ""}" data-cat="esm-concurrency">2. ESM & Worker Threads</button>
+              <button type="button" class="btn btn-tab ${category === "modern-runtime" ? "active" : ""}" data-cat="modern-runtime">3. Runtime Moderno & TS</button>
+              <button type="button" class="btn btn-tab ${category === "node-frameworks" ? "active" : ""}" data-cat="node-frameworks">4. Frameworks Web</button>
+            ` : isGrokking ? `
+              <button type="button" class="btn btn-tab ${category === "fundamentos" ? "active" : ""}" data-cat="fundamentos">1. Fundamentos</button>
+              <button type="button" class="btn btn-tab ${category === "dividir-conquistar" ? "active" : ""}" data-cat="dividir-conquistar">2. Dividir & Conquistar</button>
+              <button type="button" class="btn btn-tab ${category === "tabelas-hash" ? "active" : ""}" data-cat="tabelas-hash">2. Tabelas Hash</button>
+              <button type="button" class="btn btn-tab ${category === "grafos" ? "active" : ""}" data-cat="grafos">3. Grafos & BFS</button>
+              <button type="button" class="btn btn-tab ${category === "avancados" ? "active" : ""}" data-cat="avancados">4. Avançados & DP</button>
+            ` : `
+              ${!isCleanCode && activeTab === "questoes" ? `
+                <button type="button" class="btn btn-tab ${category === "principios" ? "active" : ""}" data-cat="principios">Princípios & POO</button>
+              ` : ""}
+              <button type="button" class="btn btn-tab ${category === "criacional" ? "active" : ""}" data-cat="criacional">${isCleanCode ? "1. Fundamentos" : "Criacionais"}</button>
+              <button type="button" class="btn btn-tab ${category === "estrutural" ? "active" : ""}" data-cat="estrutural">${isCleanCode ? "2. Design & Testes" : "Estruturais"}</button>
+              <button type="button" class="btn btn-tab ${category === "comportamental" ? "active" : ""}" data-cat="comportamental">${isCleanCode ? "3. Arquitetura" : "Comportamentais"}</button>
+              ${isCleanCode ? `
+                <button type="button" class="btn btn-tab ${category === "estudos-de-caso" ? "active" : ""}" data-cat="estudos-de-caso">4. Casos & Odores</button>
+              ` : activeTab === "cenarios" ? `
+                <button type="button" class="btn btn-tab ${category === "combinado" ? "active" : ""}" data-cat="combinado">Combinados</button>
+              ` : ""}
+            `}
+          </div>
             <button type="button" class="btn btn-tab ${category === "todos" ? "active" : ""}" data-cat="todos">Todas</button>
             ${isGrokking ? `
               <button type="button" class="btn btn-tab ${category === "fundamentos" ? "active" : ""}" data-cat="fundamentos">1. Fundamentos</button>

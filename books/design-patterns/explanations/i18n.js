@@ -1,6 +1,8 @@
 import { uiStringsExtra, commonLabels, patternI18nExtra } from "./i18n-extra.js";
 import { cleanCodeI18n } from "../../clean-code/explanations/clean-code-i18n.js";
 import { grokkingAlgorithmsI18n } from "../../grokking-algorithms/explanations/grokking-algorithms-i18n.js";
+import { javaI18n } from "../../java/explanations/java-i18n.js";
+import { nodeI18n } from "../../node/explanations/node-i18n.js";
 
 const LANG_KEY = "gof_explorer_lang";
 const listeners = new Set();
@@ -1128,6 +1130,16 @@ for (const [chId, tr] of Object.entries(cleanCodeI18n)) {
 }
 
 for (const [chId, tr] of Object.entries(grokkingAlgorithmsI18n)) {
+  if (!patternI18n[chId]) patternI18n[chId] = {};
+  Object.assign(patternI18n[chId], tr);
+}
+
+for (const [chId, tr] of Object.entries(javaI18n)) {
+  if (!patternI18n[chId]) patternI18n[chId] = {};
+  Object.assign(patternI18n[chId], tr);
+}
+
+for (const [chId, tr] of Object.entries(nodeI18n)) {
   if (!patternI18n[chId]) patternI18n[chId] = {};
   Object.assign(patternI18n[chId], tr);
 }

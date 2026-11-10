@@ -2,6 +2,8 @@ import { patternsData } from "../../books/design-patterns/explanations/patterns-
 import { patternAnimations } from "../../books/design-patterns/examples/pattern-animations.js";
 import { cleanCodeChaptersData } from "../../books/clean-code/explanations/chapters-data.js";
 import { grokkingChaptersData } from "../../books/grokking-algorithms/explanations/chapters-data.js";
+import { javaChaptersData } from "../../books/java/explanations/chapters-data.js";
+import { nodeChaptersData } from "../../books/node/explanations/chapters-data.js";
 import { t } from "../../books/design-patterns/explanations/i18n.js";
 import { stopActiveVisualizerTimer } from "./pattern-visualizer.js";
 import { updatePageSEO } from "../utils/seo.js";
@@ -9,6 +11,8 @@ import { renderBookshelfPage } from "./bookshelf-view.js";
 import { handleGofRoute } from "./gof-views.js";
 import { handleCleanCodeRoute } from "./clean-code-views.js";
 import { handleGrokkingRoute } from "./grokking-views.js";
+import { handleJavaRoute } from "./java-views.js";
+import { handleNodeRoute } from "./node-views.js";
 
 export function updateHeaderTelemetry(hash) {
   const badgeEl = document.getElementById("header-active-module");
@@ -47,6 +51,32 @@ export function updateHeaderTelemetry(hash) {
     return;
   }
 
+  if (hash.startsWith("#/java")) {
+    if (hash.startsWith("#/java/capitulo/")) {
+      const id = hash.replace("#/java/capitulo/", "").trim();
+      const ch = javaChaptersData.find((item) => item.id === id);
+      if (ch) {
+        badgeEl.innerHTML = `<span class="header-status-dot"></span> <span class="header-now-label">${t("activeStudying") || "ESTUDANDO AGORA:"}</span> <strong>${ch.code} · ${ch.name.toUpperCase()}</strong>`;
+        return;
+      }
+    }
+    badgeEl.innerHTML = `<span class="header-status-dot"></span> <span class="header-now-label">${t("activeBook") || "LIVRO ATIVO:"}</span> <strong>JAVA: JVM & ECOSSISTEMA</strong>`;
+    return;
+  }
+
+  if (hash.startsWith("#/node")) {
+    if (hash.startsWith("#/node/capitulo/")) {
+      const id = hash.replace("#/node/capitulo/", "").trim();
+      const ch = nodeChaptersData.find((item) => item.id === id);
+      if (ch) {
+        badgeEl.innerHTML = `<span class="header-status-dot"></span> <span class="header-now-label">${t("activeStudying") || "ESTUDANDO AGORA:"}</span> <strong>${ch.code} · ${ch.name.toUpperCase()}</strong>`;
+        return;
+      }
+    }
+    badgeEl.innerHTML = `<span class="header-status-dot"></span> <span class="header-now-label">${t("activeBook") || "LIVRO ATIVO:"}</span> <strong>NODE.JS & EVENT LOOP</strong>`;
+    return;
+  }
+
   // Design Patterns (GoF)
   if (hash.startsWith("#/padrao/")) {
     const id = hash.replace("#/padrao/", "").trim();
@@ -81,6 +111,16 @@ export function handleRoute(contentArea) {
 
   if (hash.startsWith("#/grokking-algorithms")) {
     handleGrokkingRoute(contentArea, hash);
+    return;
+  }
+
+  if (hash.startsWith("#/java")) {
+    handleJavaRoute(contentArea, hash);
+    return;
+  }
+
+  if (hash.startsWith("#/node")) {
+    handleNodeRoute(contentArea, hash);
     return;
   }
 

@@ -12,12 +12,10 @@ const paletteCycle = ["blue", "emerald", "cyan", "violet", "amber"];
 
 function normalizeAnimSpec(raw, patternId = "") {
   if (!raw) return null;
-  if (raw.steps?.[0]?.packet) return raw; // Already in GoF format
-
   const pid = patternId || raw.id || "";
-  const isJava = String(pid).startsWith("jv-cap-");
-  const isNode = String(pid).startsWith("nd-cap-");
-  const isGrokking = String(pid).startsWith("ga-cap-");
+  const isGof = Boolean(patternAnimations[pid]);
+  if (raw.steps?.[0]?.packet && isGof) return raw; // Already in GoF format
+
   const ccI18n = cleanCodeAnimStepsI18n[pid] || cleanCodeAnimStepsI18n[raw.id];
 
   return {
@@ -28,15 +26,7 @@ function normalizeAnimSpec(raw, patternId = "") {
       id: n.id,
       label: n.label,
       stereotype: n.stereotype || n.stereo || "«participant»",
-      addr:
-        n.addr ||
-        (isJava
-          ? `0xJV${idx}0`
-          : isNode
-          ? `0xND${idx}0`
-          : isGrokking
-          ? `0xGA${idx}0`
-          : `0xCC${idx}0`),
+      addr: isGof ? (n.addr || `0x${idx}0`) : "",
       x: n.x,
       y: n.y,
       color: n.color || paletteCycle[idx % paletteCycle.length]
@@ -216,6 +206,7 @@ export function stopActiveVisualizerTimer() {
 export function renderPatternVisualizer(container, pattern) {
   stopActiveVisualizerTimer();
 
+  const isGof = Boolean(patternAnimations[pattern.id]);
   const anim = normalizeAnimSpec(
     patternAnimations[pattern.id] ||
       cleanCodeAnimations[pattern.id] ||
@@ -291,6 +282,7 @@ export function renderPatternVisualizer(container, pattern) {
           </div>
 
           <div class="pe-telemetry-right">
+            ${isGof ? `
             <div class="pe-layer-indicator" title="${t("gofLayerLabel")}">
               <span class="pe-layer-label">${t("gofLayerLabel")}</span>
               <div class="pe-layer-blocks" role="group" aria-label="${t("gofLayerLabel")}">
@@ -307,6 +299,12 @@ export function renderPatternVisualizer(container, pattern) {
                 <span class="pe-layer-block ${anim.scopeType === "OBJECT" ? "active" : ""}">${t("scopeObject")}</span>
               </div>
             </div>
+            ` : `
+            <span class="pe-status-pill">
+              <span class="pe-status-dot"></span>
+              FLUXO ESTRUTURAL
+            </span>
+            `}
           </div>
         </div>
 
@@ -434,8 +432,8 @@ export function renderPatternVisualizer(container, pattern) {
                   <rect x="${rx}" y="${ry}" width="${w}" height="${h}" rx="8" class="pe-node-box" />
                   <text x="${node.x}" y="${ry + 15}" text-anchor="middle" class="pe-node-stereotype">${node.stereotype}</text>
                   <text x="${node.x}" y="${ry + 32}" text-anchor="middle" class="pe-node-title">${node.label}</text>
-                  <text x="${rx + 10}" y="${ry + 49}" class="pe-node-addr">${node.addr}</text>
-                  <text x="${rx + w - 10}" y="${ry + 49}" text-anchor="end" class="pe-node-state-badge">${stateText}</text>
+                  ${isGof && node.addr ? `<text x="${rx + 10}" y="${ry + 49}" class="pe-node-addr">${node.addr}</text>` : ""}
+                  <text x="${isGof && node.addr ? rx + w - 10 : node.x}" y="${ry + 49}" text-anchor="${isGof && node.addr ? "end" : "middle"}" class="pe-node-state-badge">${stateText}</text>
                 </g>
               `;
             }).join("")}
@@ -552,7 +550,7 @@ export function renderPatternVisualizer(container, pattern) {
               >
                 <div class="pe-participant-header">
                   <span class="pe-participant-badge receiver">${t("tabReceiver")}</span>
-                  <span class="pe-participant-addr">${toNode.addr}</span>
+                  ${toNode.addr ? `<span class="pe-participant-addr">${toNode.addr}</span>` : ""}
                 </div>
                 <strong class="pe-participant-title">${toNode.label}</strong>
                 <div class="pe-participant-role">${toNode.stereotype}</div>
@@ -572,7 +570,7 @@ export function renderPatternVisualizer(container, pattern) {
               >
                 <div class="pe-participant-header">
                   <span class="pe-participant-badge sender">${t("tabSender")}</span>
-                  <span class="pe-participant-addr">${fromNode.addr}</span>
+                  ${fromNode.addr ? `<span class="pe-participant-addr">${fromNode.addr}</span>` : ""}
                 </div>
                 <strong class="pe-participant-title">${fromNode.label}</strong>
                 <div class="pe-participant-role">${fromNode.stereotype}</div>
@@ -604,7 +602,7 @@ export function renderPatternVisualizer(container, pattern) {
           <div class="pe-inspector-panel">
             <div class="pe-inspector-header">
               <span>${t("inspectorObjectTitle")}</span>
-              <span class="pe-inspector-sub">${stateInfo.selectedNode.label} (${stateInfo.selectedNode.addr})</span>
+              <span class="pe-inspector-sub">${stateInfo.selectedNode.label}${stateInfo.selectedNode.addr ? ` (${stateInfo.selectedNode.addr})` : ""}</span>
             </div>
 
             <div class="pe-object-inspector-body">

@@ -10,6 +10,7 @@
 import { javaChaptersData } from "../../books/java/explanations/chapters-data.js";
 import { javaBookOverview, javaVersionsMatrix, javaFrameworksHistory } from "../../books/java/explanations/book-overview.js";
 import { javaLabs } from "../../books/java/examples/java-labs.js";
+import { javaAnimations } from "../../books/java/examples/java-animations.js";
 import { highlightCode } from "../utils/code-highlighter.js";
 import { getStudiedPatterns, togglePatternStudied } from "./sidebar.js";
 import { renderPatternExercises, renderQuizzesPage } from "./quiz-engine.js";
@@ -153,13 +154,13 @@ export function renderJavaHomePage(container) {
       <!-- Capítulos Agrupados por Seções Temáticas -->
       <div class="cc-chapters-container" id="jv-chapters-grid">
         ${[
-          { id: "sec-part-1", cat: "classic-jvm", title: "Parte 1 • Gênese da JVM, Bytecode & Fundamentos (JDK 1.0 a 7)", items: part1 },
-          { id: "sec-part-2", cat: "functional-modular", title: "Parte 2 • Revolução Funcional, Modularização JPMS & JDK 11 LTS (Java 8 a 11)", items: part2 },
-          { id: "sec-part-3", cat: "modern-lts", title: "Parte 3 • Java Moderno, Records, Virtual Threads & FFM Panama (Java 17 a 25 LTS)", items: part3 },
-          { id: "sec-part-4", cat: "frameworks-ecosystem", title: "Parte 4 • Frameworks Enterprise: Spring Boot 3, Quarkus 3, Jakarta EE 11 & Micronaut", items: part4 }
-        ]
-          .map(
-            (part) => `
+      { id: "sec-part-1", cat: "classic-jvm", title: "Parte 1 • Gênese da JVM, Bytecode & Fundamentos (JDK 1.0 a 7)", items: part1 },
+      { id: "sec-part-2", cat: "functional-modular", title: "Parte 2 • Revolução Funcional, Modularização JPMS & JDK 11 LTS (Java 8 a 11)", items: part2 },
+      { id: "sec-part-3", cat: "modern-lts", title: "Parte 3 • Java Moderno, Records, Virtual Threads & FFM Panama (Java 17 a 25 LTS)", items: part3 },
+      { id: "sec-part-4", cat: "frameworks-ecosystem", title: "Parte 4 • Frameworks Enterprise: Spring Boot 3, Quarkus 3, Jakarta EE 11 & Micronaut", items: part4 }
+    ]
+      .map(
+        (part) => `
           <section class="cc-chapter-section" id="${part.id}" data-section-cat="${part.cat}">
             <h2 class="cc-section-header">
               <span class="cc-section-dot cat-${part.cat}"></span>
@@ -170,8 +171,8 @@ export function renderJavaHomePage(container) {
             </div>
           </section>
         `
-          )
-          .join("")}
+      )
+      .join("")}
       </div>
 
       <!-- Pilares Fundamentais -->
@@ -179,15 +180,15 @@ export function renderJavaHomePage(container) {
         <h2 class="section-title">Os 6 Pilares de Engenharia da Plataforma Java</h2>
         <div class="grid-2">
           ${javaBookOverview.corePrinciples
-            .map(
-              (p) => `
+      .map(
+        (p) => `
             <div class="info-card">
               <h4>${p.title}</h4>
               <p>${p.description}</p>
             </div>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </div>
       </section>
 
@@ -196,8 +197,8 @@ export function renderJavaHomePage(container) {
         <h2 class="section-title">Arquitetos & Pioneiros da Plataforma</h2>
         <div class="authors-grid">
           ${javaBookOverview.authors
-            .map(
-              (a) => `
+      .map(
+        (a) => `
             <div class="author-card">
               <div class="author-avatar">${a.avatar || "JV"}</div>
               <h4>${a.name}</h4>
@@ -205,8 +206,8 @@ export function renderJavaHomePage(container) {
               <p style="font-size:0.86rem; color:var(--text-secondary); margin-top:0.5rem;">${a.bio}</p>
             </div>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </div>
       </section>
     </div>
@@ -272,14 +273,15 @@ export function renderJavaChapterPage(container, chapterId) {
   const isStudied = studied.includes(ch.id);
   const lang = getLang();
   const loc = getLocalizedChapter(ch);
+  const hasVisualizer = Boolean(javaAnimations[ch.id]);
   const badgeClass =
     ch.category === "classic-jvm"
       ? "badge-creational"
       : ch.category === "functional-modular"
-      ? "badge-structural"
-      : ch.category === "modern-lts"
-      ? "badge-behavioral"
-      : "badge-scope";
+        ? "badge-structural"
+        : ch.category === "modern-lts"
+          ? "badge-behavioral"
+          : "badge-scope";
 
   const idx = javaChaptersData.findIndex((item) => item.id === ch.id);
   const prevCh = idx > 0 ? javaChaptersData[idx - 1] : null;
@@ -288,11 +290,10 @@ export function renderJavaChapterPage(container, chapterId) {
   container.innerHTML = `
     <div class="page-action-header">
       <div class="pager-buttons">
-        ${
-          prevCh
-            ? `<a href="#/java/capitulo/${prevCh.id}" class="pager-btn">← ${t("navPrev") || "Anterior"}: ${prevCh.name}</a>`
-            : `<a href="#/java" class="pager-btn">← Catálogo Java</a>`
-        }
+        ${prevCh
+      ? `<a href="#/java/capitulo/${prevCh.id}" class="pager-btn">← ${t("navPrev") || "Anterior"}: ${prevCh.name}</a>`
+      : `<a href="#/java" class="pager-btn">← Catálogo Java</a>`
+    }
       </div>
 
       <button type="button" class="bookmark-action-btn ${isStudied ? "marked" : ""}" id="btn-toggle-bookmark">
@@ -300,11 +301,10 @@ export function renderJavaChapterPage(container, chapterId) {
       </button>
 
       <div class="pager-buttons">
-        ${
-          nextCh
-            ? `<a href="#/java/capitulo/${nextCh.id}" class="pager-btn next-btn">${t("navNext") || "Próximo"}: ${nextCh.name} →</a>`
-            : `<a href="#/java/quizzes" class="pager-btn next-btn">${t("quizzesPractice") || "Quizzes & Prática"} →</a>`
-        }
+        ${nextCh
+      ? `<a href="#/java/capitulo/${nextCh.id}" class="pager-btn next-btn">${t("navNext") || "Próximo"}: ${nextCh.name} →</a>`
+      : `<a href="#/java/quizzes" class="pager-btn next-btn">${t("quizzesPractice") || "Quizzes & Prática"} →</a>`
+    }
       </div>
     </div>
 
@@ -316,7 +316,7 @@ export function renderJavaChapterPage(container, chapterId) {
         <span class="badge badge-scope">Leitura: ${ch.readingTime}</span>
       </div>
 
-      <h1 class="page-title">Cap. ${String(ch.number).padStart(2, "0")} • ${loc.name} <small class="pattern-local-subtitle">(${loc.subtitle})</small></h1>
+      <h1 class="page-title">${loc.name} <small class="pattern-local-subtitle">(${loc.subtitle})</small></h1>
 
       <p class="text-muted" style="font-size:0.86rem; margin-top:0.4rem; margin-bottom:0.75rem;">
         <strong>Conceitos & Tópicos Centrais:</strong> ${ch.aliases.join(", ")}
@@ -330,16 +330,20 @@ export function renderJavaChapterPage(container, chapterId) {
 
     <!-- Quick Jump Workspace Tabs -->
     <nav class="pe-section-jump-nav" aria-label="Seções do Capítulo">
-      <a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>
-      <a href="#sec-architecture" class="pe-jump-link" data-jump="sec-architecture">${t("tabArchitecture")}</a>
+      ${hasVisualizer ? `<a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>` : ""}
+      <a href="#sec-architecture" class="pe-jump-link ${hasVisualizer ? "" : "active"}" data-jump="sec-architecture">${t("tabArchitecture")}</a>
       <a href="#sec-code" class="pe-jump-link" data-jump="sec-code">${t("tabCode")}</a>
       <a href="#sec-quiz" class="pe-jump-link" data-jump="sec-quiz">${t("tabLabQuiz")}</a>
     </nav>
 
     <!-- 1. Interactive Step-by-Step Visualizer -->
+    ${hasVisualizer
+      ? `
     <div id="sec-visualizer">
       <div id="pattern-visualizer-mount"></div>
-    </div>
+    </div>`
+      : ""
+    }
 
     <!-- 2. Problem, Solution & Architecture -->
     <div id="sec-architecture">
@@ -349,47 +353,44 @@ export function renderJavaChapterPage(container, chapterId) {
       </div>
 
       <h2 class="section-title mt-4">2. Como Utilizar na Prática & Análise Técnica</h2>
-      ${
-        ch.sections && ch.sections.length > 0
-          ? ch.sections
-              .map(
-                (sec, sIdx) => `
+      ${ch.sections && ch.sections.length > 0
+      ? ch.sections
+        .map(
+          (sec, sIdx) => `
             <div class="info-card" style="margin-bottom: 1rem;">
               <h4>2.${sIdx + 1}. ${sec.heading}</h4>
               <p>${formatParagraphs(sec.body)}</p>
-              ${
-                sec.bullets && sec.bullets.length
-                  ? `<ul>${sec.bullets.map((b) => `<li>${b}</li>`).join("")}</ul>`
-                  : ""
-              }
-              ${
-                sec.callout
-                  ? `
+              ${sec.bullets && sec.bullets.length
+              ? `<ul>${sec.bullets.map((b) => `<li>${b}</li>`).join("")}</ul>`
+              : ""
+            }
+              ${sec.callout
+              ? `
                 <div class="callout callout-${sec.callout.type === "warning" ? "warning" : "info"}" style="margin-top:0.85rem; margin-bottom:0;">
                   <h5>${sec.callout.title}</h5>
                   <p>${sec.callout.text}</p>
                 </div>
               `
-                  : ""
-              }
+              : ""
+            }
             </div>
           `
-              )
-              .join("")
-          : `
+        )
+        .join("")
+      : `
             <div class="info-card">
               <p>${formatParagraphs(loc.solution)}</p>
             </div>
           `
-      }
+    }
 
       <h2 class="section-title mt-4">Diretrizes & Conceitos-Chave do Capítulo</h2>
       <div class="info-card">
         <h5>Pilares Fundamentais:</h5>
         <ul>
           ${ch.structure.participants
-            .map((p) => `<li><strong>${p.name}:</strong> ${p.role}</li>`)
-            .join("")}
+      .map((p) => `<li><strong>${p.name}:</strong> ${p.role}</li>`)
+      .join("")}
         </ul>
         <h5 class="mt-3">Dinâmica de Execução & Retrocompatibilidade:</h5>
         <p>${ch.structure.collaborations}</p>
@@ -441,15 +442,15 @@ export function renderJavaChapterPage(container, chapterId) {
       <div class="info-card">
         <div class="grid-3" style="margin: 0;">
           ${ch.realWorldUses
-            .map(
-              (use, idx) => `
+      .map(
+        (use, idx) => `
             <div>
               <span class="badge badge-scope mb-2">Aplicação #${idx + 1}</span>
               <p style="font-size: 0.92rem;">${use}</p>
             </div>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </div>
       </div>
 
@@ -457,27 +458,26 @@ export function renderJavaChapterPage(container, chapterId) {
       <div class="info-card">
         <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
           ${ch.relatedPatterns
-            .map((relId) => {
-              const rel = javaChaptersData.find((item) => item.id === relId);
-              return rel
-                ? `<a href="#/java/capitulo/${rel.id}" class="btn btn-sm btn-outline">${rel.name}</a>`
-                : "";
-            })
-            .join("")}
+      .map((relId) => {
+        const rel = javaChaptersData.find((item) => item.id === relId);
+        return rel
+          ? `<a href="#/java/capitulo/${rel.id}" class="btn btn-sm btn-outline">${rel.name}</a>`
+          : "";
+      })
+      .join("")}
         </div>
       </div>
     </div>
 
     <!-- 4. Interactive Playground & Quiz -->
     <div id="sec-quiz">
-      ${
-        ch.playgroundId && javaLabs[ch.playgroundId]
-          ? `
+      ${ch.playgroundId && javaLabs[ch.playgroundId]
+      ? `
         <h2 class="section-title mt-4">Laboratório Visual & Gráfico Interativo</h2>
         <div id="inline-lab-container"></div>
       `
-          : ""
-      }
+      : ""
+    }
 
       <h2 class="section-title mt-4">Exercícios de Fixação & Diagnóstico do Capítulo</h2>
       <div id="inline-quiz-container"></div>
@@ -486,14 +486,14 @@ export function renderJavaChapterPage(container, chapterId) {
       <div class="info-card">
         <ul>
           ${ch.references
-            .map(
-              (ref) => `
+      .map(
+        (ref) => `
             <li>
               <strong>${ref.book}</strong> • ${ref.chapter} (${ref.pages}): ${ref.summary}
             </li>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </ul>
       </div>
     </div>
@@ -501,7 +501,7 @@ export function renderJavaChapterPage(container, chapterId) {
 
   // Visualizer Mount
   const vizMount = container.querySelector("#pattern-visualizer-mount");
-  if (vizMount) {
+  if (vizMount && hasVisualizer) {
     renderPatternVisualizer(vizMount, ch);
   }
 
@@ -565,9 +565,32 @@ export function renderJavaChapterPage(container, chapterId) {
     renderPatternExercises(inlineQuizContainer, ch.id);
   }
 
-  // Jump Nav Sticky
+  // Jump Nav Sticky & Smooth Scroll
   const jumpNav = container.querySelector(".pe-section-jump-nav");
   if (jumpNav) initStickyNav(jumpNav);
+  const jumpLinks = container.querySelectorAll(".pe-jump-link");
+
+  function setActiveJumpLink(targetId) {
+    jumpLinks.forEach((link) => {
+      const match = link.getAttribute("data-jump") === targetId;
+      link.classList.toggle("active", match);
+    });
+  }
+
+  jumpLinks.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute("data-jump");
+      setActiveJumpLink(targetId);
+      const targetSec = container.querySelector(`#${targetId}`);
+      if (targetSec) {
+        const headerOffset = 110;
+        const rect = targetSec.getBoundingClientRect();
+        const top = window.pageYOffset + rect.top - headerOffset;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    });
+  });
 }
 
 /**
@@ -603,8 +626,8 @@ export function renderJavaVersionsAndFrameworksPage(container) {
           </thead>
           <tbody>
             ${javaVersionsMatrix
-              .map(
-                (v) => `
+      .map(
+        (v) => `
               <tr>
                 <td><span class="badge ${v.lts === "LTS" ? "badge-creational" : "badge-scope"}" style="font-family:var(--font-mono); font-weight:700;">${v.version}</span></td>
                 <td>${v.year}</td>
@@ -615,8 +638,8 @@ export function renderJavaVersionsAndFrameworksPage(container) {
                 <td><small style="color:var(--text-secondary);">${v.retrocompatibility}</small></td>
               </tr>
             `
-              )
-              .join("")}
+      )
+      .join("")}
           </tbody>
         </table>
       </div>
@@ -636,8 +659,8 @@ export function renderJavaVersionsAndFrameworksPage(container) {
           </thead>
           <tbody>
             ${javaFrameworksHistory.springBoot
-              .map(
-                (sb) => `
+      .map(
+        (sb) => `
               <tr>
                 <td><strong>${sb.version}</strong></td>
                 <td>${sb.year}</td>
@@ -646,8 +669,8 @@ export function renderJavaVersionsAndFrameworksPage(container) {
                 <td><small style="color:var(--text-secondary);">${sb.breakingAndCompat}</small></td>
               </tr>
             `
-              )
-              .join("")}
+      )
+      .join("")}
           </tbody>
         </table>
       </div>
@@ -667,8 +690,8 @@ export function renderJavaVersionsAndFrameworksPage(container) {
           </thead>
           <tbody>
             ${javaFrameworksHistory.quarkus
-              .map(
-                (qk) => `
+      .map(
+        (qk) => `
               <tr>
                 <td><strong>${qk.version}</strong></td>
                 <td>${qk.year}</td>
@@ -677,8 +700,8 @@ export function renderJavaVersionsAndFrameworksPage(container) {
                 <td><small style="color:var(--text-secondary);">${qk.breakingAndCompat}</small></td>
               </tr>
             `
-              )
-              .join("")}
+      )
+      .join("")}
           </tbody>
         </table>
       </div>
@@ -697,8 +720,8 @@ export function renderJavaVersionsAndFrameworksPage(container) {
           </thead>
           <tbody>
             ${javaFrameworksHistory.jakartaAndMicronaut
-              .map(
-                (jm) => `
+      .map(
+        (jm) => `
               <tr>
                 <td><strong>${jm.version}</strong></td>
                 <td>${jm.year}</td>
@@ -707,8 +730,8 @@ export function renderJavaVersionsAndFrameworksPage(container) {
                 <td><small style="color:var(--text-secondary);">${jm.breakingAndCompat}</small></td>
               </tr>
             `
-              )
-              .join("")}
+      )
+      .join("")}
           </tbody>
         </table>
       </div>
@@ -737,14 +760,14 @@ export function renderJavaLabsHubPage(container) {
 
       <div class="factory-selector-tabs mb-4" id="jv-labs-selector-tabs">
         ${labKeys
-          .map(
-            (key, idx) => `
+      .map(
+        (key, idx) => `
           <button type="button" class="btn btn-tab ${idx === 0 ? "active" : ""}" data-lab="${key}">
             ${idx + 1}. ${javaLabs[key].name}
           </button>
         `
-          )
-          .join("")}
+      )
+      .join("")}
       </div>
 
       <div id="jv-active-lab-render-area"></div>
@@ -798,8 +821,8 @@ export function renderJavaReferencesPage(container) {
 
       <div class="authors-grid mt-4">
         ${javaBookOverview.authors
-          .map(
-            (a) => `
+      .map(
+        (a) => `
           <div class="author-card">
             <div class="author-avatar">${a.avatar || "JV"}</div>
             <h4>${a.name}</h4>
@@ -807,8 +830,8 @@ export function renderJavaReferencesPage(container) {
             <p style="font-size:0.88rem; color:var(--text-secondary); margin-top:0.5rem;">${a.bio}</p>
           </div>
         `
-          )
-          .join("")}
+      )
+      .join("")}
       </div>
 
       <h2 class="section-title mt-5">Obras Fundamentais Recomendadas</h2>

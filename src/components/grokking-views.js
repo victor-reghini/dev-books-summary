@@ -10,6 +10,7 @@
 import { grokkingChaptersData } from "../../books/grokking-algorithms/explanations/chapters-data.js";
 import { grokkingBookOverview, bigOScaleTable } from "../../books/grokking-algorithms/explanations/book-overview.js";
 import { grokkingAlgorithmsLabs } from "../../books/grokking-algorithms/examples/grokking-algorithms-labs.js";
+import { grokkingAlgorithmsAnimations } from "../../books/grokking-algorithms/examples/grokking-algorithms-animations.js";
 import { highlightCode } from "../utils/code-highlighter.js";
 import { getStudiedPatterns, togglePatternStudied, updateSidebarProgress } from "./sidebar.js";
 import { renderPatternExercises, renderQuizzesPage } from "./quiz-engine.js";
@@ -280,13 +281,13 @@ export function renderGrokkingHomePage(container) {
       <!-- Capítulos Agrupados por Seções Temáticas -->
       <div class="cc-chapters-container" id="ga-chapters-grid">
         ${[
-          { id: "sec-part-1", cat: "foundations", title: ui.p1Title, items: part1 },
-          { id: "sec-part-2", cat: "divide-hash", title: ui.p2Title, items: part2 },
-          { id: "sec-part-3", cat: "graphs", title: ui.p3Title, items: part3 },
-          { id: "sec-part-4", cat: "advanced", title: ui.p4Title, items: part4 }
-        ]
-          .map(
-            (part) => `
+      { id: "sec-part-1", cat: "foundations", title: ui.p1Title, items: part1 },
+      { id: "sec-part-2", cat: "divide-hash", title: ui.p2Title, items: part2 },
+      { id: "sec-part-3", cat: "graphs", title: ui.p3Title, items: part3 },
+      { id: "sec-part-4", cat: "advanced", title: ui.p4Title, items: part4 }
+    ]
+      .map(
+        (part) => `
           <section class="cc-chapter-section" id="${part.id}" data-section-cat="${part.cat}">
             <h2 class="cc-section-header">
               <span class="cc-section-dot cat-${part.cat}"></span>
@@ -297,8 +298,8 @@ export function renderGrokkingHomePage(container) {
             </div>
           </section>
         `
-          )
-          .join("")}
+      )
+      .join("")}
       </div>
 
       <!-- Pilares Centrais -->
@@ -306,15 +307,15 @@ export function renderGrokkingHomePage(container) {
         <h2 class="section-title">${ui.pillarsTitle}</h2>
         <div class="grid-2">
           ${grokkingBookOverview.corePrinciples
-            .map(
-              (p) => `
+      .map(
+        (p) => `
             <div class="info-card">
               <h4>${p.title}</h4>
               <p>${p.description}</p>
             </div>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </div>
       </section>
 
@@ -323,21 +324,21 @@ export function renderGrokkingHomePage(container) {
         <h2 class="section-title">${ui.authorsTitle}</h2>
         <div class="authors-grid">
           ${grokkingBookOverview.authors
-            .map(
-              (a) => `
+      .map(
+        (a) => `
             <div class="author-card">
               <div class="author-avatar">${a.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .slice(0, 2)}</div>
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)}</div>
               <h4>${a.name}</h4>
               <div class="author-role">${a.role}</div>
               <p style="font-size:0.86rem; color:var(--text-secondary); margin-top:0.5rem;">${a.bio}</p>
             </div>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </div>
       </section>
     </div>
@@ -403,12 +404,13 @@ export function renderGrokkingChapterPage(container, chapterId) {
   const isStudied = studied.includes(ch.id);
   const lang = getLang();
   const loc = getLocalizedChapter(ch);
+  const hasVisualizer = Boolean(grokkingAlgorithmsAnimations[ch.id]);
   const badgeClass =
     ch.category === "foundations"
       ? "badge-creational"
       : ch.category === "divide-hash"
-      ? "badge-structural"
-      : "badge-behavioral";
+        ? "badge-structural"
+        : "badge-behavioral";
 
   const idx = grokkingChaptersData.findIndex((item) => item.id === ch.id);
   const prevCh = idx > 0 ? grokkingChaptersData[idx - 1] : null;
@@ -418,11 +420,10 @@ export function renderGrokkingChapterPage(container, chapterId) {
     <!-- Top Navigation & Completion Bar -->
     <div class="page-action-header">
       <div class="pager-buttons">
-        ${
-          prevCh
-            ? `<a href="#/grokking-algorithms/capitulo/${prevCh.id}" class="pager-btn">← ${t("navPrev") || "Anterior"}: ${prevCh.name}</a>`
-            : `<a href="#/grokking-algorithms" class="pager-btn">← Catálogo Entendendo Algoritmos</a>`
-        }
+        ${prevCh
+      ? `<a href="#/grokking-algorithms/capitulo/${prevCh.id}" class="pager-btn">← ${t("navPrev") || "Anterior"}: ${prevCh.name}</a>`
+      : `<a href="#/grokking-algorithms" class="pager-btn">← Catálogo Entendendo Algoritmos</a>`
+    }
       </div>
 
       <button type="button" class="bookmark-action-btn ${isStudied ? "marked" : ""}" id="btn-toggle-bookmark">
@@ -430,11 +431,10 @@ export function renderGrokkingChapterPage(container, chapterId) {
       </button>
 
       <div class="pager-buttons">
-        ${
-          nextCh
-            ? `<a href="#/grokking-algorithms/capitulo/${nextCh.id}" class="pager-btn next-btn">${t("navNext") || "Próximo"}: ${nextCh.name} →</a>`
-            : `<a href="#/grokking-algorithms/quizzes" class="pager-btn next-btn">${t("quizzesPractice") || "Quizzes & Prática"} →</a>`
-        }
+        ${nextCh
+      ? `<a href="#/grokking-algorithms/capitulo/${nextCh.id}" class="pager-btn next-btn">${t("navNext") || "Próximo"}: ${nextCh.name} →</a>`
+      : `<a href="#/grokking-algorithms/quizzes" class="pager-btn next-btn">${t("quizzesPractice") || "Quizzes & Prática"} →</a>`
+    }
       </div>
     </div>
 
@@ -461,16 +461,20 @@ export function renderGrokkingChapterPage(container, chapterId) {
 
     <!-- Quick Jump Workspace Tabs (Sticky ScrollSpy Navigation) -->
     <nav class="pe-section-jump-nav" aria-label="Seções do Capítulo">
-      <a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>
-      <a href="#sec-architecture" class="pe-jump-link" data-jump="sec-architecture">${t("tabArchitecture")}</a>
+      ${hasVisualizer ? `<a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>` : ""}
+      <a href="#sec-architecture" class="pe-jump-link ${hasVisualizer ? "" : "active"}" data-jump="sec-architecture">${t("tabArchitecture")}</a>
       <a href="#sec-code" class="pe-jump-link" data-jump="sec-code">${t("tabCode")}</a>
       <a href="#sec-quiz" class="pe-jump-link" data-jump="sec-quiz">${t("tabLabQuiz")}</a>
     </nav>
 
     <!-- 1. Interactive Step-by-Step Visualizer & Object Inspector -->
+    ${hasVisualizer
+      ? `
     <div id="sec-visualizer">
       <div id="pattern-visualizer-mount"></div>
-    </div>
+    </div>`
+      : ""
+    }
 
     <!-- 2. Problem, Solution & Structure -->
     <div id="sec-architecture">
@@ -480,39 +484,36 @@ export function renderGrokkingChapterPage(container, chapterId) {
       </div>
 
       <h2 class="section-title mt-4">${t("solutionTitle") || "2. Funcionamento Passo a Passo & Análise Ilustrada"}</h2>
-      ${
-        lang === "pt" && ch.sections && ch.sections.length > 0
-          ? ch.sections
-              .map(
-                (sec, sIdx) => `
+      ${lang === "pt" && ch.sections && ch.sections.length > 0
+      ? ch.sections
+        .map(
+          (sec, sIdx) => `
             <div class="info-card" style="margin-bottom: 1rem;">
               <h4>2.${sIdx + 1}. ${sec.heading}</h4>
               <p>${formatParagraphs(sec.body)}</p>
-              ${
-                sec.bullets && sec.bullets.length
-                  ? `<ul>${sec.bullets.map((b) => `<li>${b}</li>`).join("")}</ul>`
-                  : ""
-              }
-              ${
-                sec.callout
-                  ? `
+              ${sec.bullets && sec.bullets.length
+              ? `<ul>${sec.bullets.map((b) => `<li>${b}</li>`).join("")}</ul>`
+              : ""
+            }
+              ${sec.callout
+              ? `
                 <div class="callout callout-${sec.callout.type === "warning" ? "warning" : "info"}" style="margin-top:0.85rem; margin-bottom:0;">
                   <h5>${sec.callout.title}</h5>
                   <p>${sec.callout.text}</p>
                 </div>
               `
-                  : ""
-              }
+              : ""
+            }
             </div>
           `
-              )
-              .join("")
-          : `
+        )
+        .join("")
+      : `
             <div class="info-card">
               <p>${formatParagraphs(loc.solution)}</p>
             </div>
           `
-      }
+    }
 
       <!-- 3. PILARES E REGRAS ESSENCIAIS -->
       <h2 class="section-title mt-4">Diretrizes & Conceitos-Chave do Capítulo</h2>
@@ -520,8 +521,8 @@ export function renderGrokkingChapterPage(container, chapterId) {
         <h5>Pilares e Regras Fundamentais:</h5>
         <ul>
           ${ch.structure.participants
-            .map((p) => `<li><strong>${p.name}:</strong> ${p.role}</li>`)
-            .join("")}
+      .map((p) => `<li><strong>${p.name}:</strong> ${p.role}</li>`)
+      .join("")}
         </ul>
         <h5 class="mt-3">Dinâmica de Execução e Complexidade:</h5>
         <p>${ch.structure.collaborations}</p>
@@ -583,15 +584,15 @@ export function renderGrokkingChapterPage(container, chapterId) {
       <div class="info-card">
         <div class="grid-3" style="margin: 0;">
           ${ch.realWorldUses
-            .map(
-              (use, idx) => `
+      .map(
+        (use, idx) => `
             <div>
               <span class="badge badge-scope mb-2">Aplicação #${idx + 1}</span>
               <p style="font-size: 0.92rem;">${use}</p>
             </div>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </div>
       </div>
 
@@ -599,27 +600,26 @@ export function renderGrokkingChapterPage(container, chapterId) {
       <div class="info-card">
         <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
           ${ch.relatedPatterns
-            .map((relId) => {
-              const rel = grokkingChaptersData.find((item) => item.id === relId);
-              return rel
-                ? `<a href="#/grokking-algorithms/capitulo/${rel.id}" class="btn btn-sm btn-outline">${rel.name}</a>`
-                : "";
-            })
-            .join("")}
+      .map((relId) => {
+        const rel = grokkingChaptersData.find((item) => item.id === relId);
+        return rel
+          ? `<a href="#/grokking-algorithms/capitulo/${rel.id}" class="btn btn-sm btn-outline">${rel.name}</a>`
+          : "";
+      })
+      .join("")}
         </div>
       </div>
     </div>
 
     <!-- 4. Interactive Playground & Quiz -->
     <div id="sec-quiz">
-      ${
-        ch.playgroundId && grokkingAlgorithmsLabs[ch.playgroundId]
-          ? `
+      ${ch.playgroundId && grokkingAlgorithmsLabs[ch.playgroundId]
+      ? `
         <h2 class="section-title mt-4">Laboratório Visual & Gráfico Interativo</h2>
         <div id="inline-lab-container"></div>
       `
-          : ""
-      }
+      : ""
+    }
 
       <h2 class="section-title mt-4">Exercícios de Fixação & Diagnóstico do Capítulo</h2>
       <div id="inline-quiz-container"></div>
@@ -628,14 +628,14 @@ export function renderGrokkingChapterPage(container, chapterId) {
       <div class="info-card">
         <ul>
           ${ch.references
-            .map(
-              (ref) => `
+      .map(
+        (ref) => `
             <li>
               <strong>${ref.book}</strong> • ${ref.chapter} (${ref.pages}): ${ref.summary}
             </li>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </ul>
       </div>
     </div>
@@ -643,25 +643,23 @@ export function renderGrokkingChapterPage(container, chapterId) {
     <!-- Bottom Navigation -->
     <div class="page-action-header mt-5">
       <div class="pager-buttons">
-        ${
-          prevCh
-            ? `<a href="#/grokking-algorithms/capitulo/${prevCh.id}" class="pager-btn">← Anterior: ${prevCh.name}</a>`
-            : `<a href="#/grokking-algorithms" class="pager-btn">← Catálogo Entendendo Algoritmos</a>`
-        }
+        ${prevCh
+      ? `<a href="#/grokking-algorithms/capitulo/${prevCh.id}" class="pager-btn">← Anterior: ${prevCh.name}</a>`
+      : `<a href="#/grokking-algorithms" class="pager-btn">← Catálogo Entendendo Algoritmos</a>`
+    }
       </div>
       <div class="pager-buttons">
-        ${
-          nextCh
-            ? `<a href="#/grokking-algorithms/capitulo/${nextCh.id}" class="pager-btn next-btn">Próximo: ${nextCh.name} →</a>`
-            : `<a href="#/grokking-algorithms/quizzes" class="pager-btn next-btn">Quizzes & Prática →</a>`
-        }
+        ${nextCh
+      ? `<a href="#/grokking-algorithms/capitulo/${nextCh.id}" class="pager-btn next-btn">Próximo: ${nextCh.name} →</a>`
+      : `<a href="#/grokking-algorithms/quizzes" class="pager-btn next-btn">Quizzes & Prática →</a>`
+    }
       </div>
     </div>
   `;
 
   // 0. Inicializa o Fluxograma Interativo
   const vizMount = container.querySelector("#pattern-visualizer-mount");
-  if (vizMount) {
+  if (vizMount && hasVisualizer) {
     renderPatternVisualizer(vizMount, ch);
   }
 
@@ -734,7 +732,7 @@ export function renderGrokkingChapterPage(container, chapterId) {
     { id: "sec-architecture", el: container.querySelector("#sec-architecture") },
     { id: "sec-code", el: container.querySelector("#sec-code") },
     { id: "sec-quiz", el: container.querySelector("#sec-quiz") }
-  ];
+  ].filter((s) => Boolean(s.el));
 
   let isAutoScrollingJump = false;
   let jumpScrollTimer = null;
@@ -829,8 +827,8 @@ export function renderGrokkingComplexityScalePage(container) {
           </thead>
           <tbody>
             ${bigOScaleTable
-              .map(
-                (row) => `
+      .map(
+        (row) => `
               <tr>
                 <td><span class="badge badge-creational" style="font-family:var(--font-mono);">${row.notation}</span></td>
                 <td><strong>${row.name}</strong></td>
@@ -841,8 +839,8 @@ export function renderGrokkingComplexityScalePage(container) {
                 <td>${row.verdict}</td>
               </tr>
             `
-              )
-              .join("")}
+      )
+      .join("")}
           </tbody>
         </table>
       </div>
@@ -942,14 +940,14 @@ export function renderGrokkingLabsHubPage(container) {
 
       <div class="factory-selector-tabs mb-4" id="ga-labs-selector-tabs">
         ${labKeys
-          .map(
-            (key, idx) => `
+      .map(
+        (key, idx) => `
           <button type="button" class="btn btn-tab ${idx === 0 ? "active" : ""}" data-lab="${key}">
             ${idx + 1}. ${grokkingAlgorithmsLabs[key].name.replace(/\s*\(Cap\.\s*\d+\)/i, "")}
           </button>
         `
-          )
-          .join("")}
+      )
+      .join("")}
       </div>
 
       <div id="ga-active-lab-render-area"></div>
@@ -1004,21 +1002,21 @@ export function renderGrokkingReferencesPage(container) {
       <h2 class="section-title mt-4">Autor da Obra</h2>
       <div class="authors-grid">
         ${grokkingBookOverview.authors
-          .map(
-            (a) => `
+      .map(
+        (a) => `
           <div class="author-card">
             <div class="author-avatar">${a.name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .slice(0, 2)}</div>
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)}</div>
             <h4>${a.name}</h4>
             <div class="author-role">${a.role}</div>
             <p style="font-size:0.88rem; color:var(--text-secondary); margin-top:0.5rem;">${a.bio}</p>
           </div>
         `
-          )
-          .join("")}
+      )
+      .join("")}
       </div>
 
       <h2 class="section-title mt-4">Obras Complementares Recomendadas</h2>

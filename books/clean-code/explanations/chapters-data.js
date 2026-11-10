@@ -958,9 +958,8 @@ export const cleanCodeChaptersData = rawChapters.map((ch) => {
     hasPlayground: true,
     playgroundId: meta.playgroundId,
     problemAndMotivation: ch.sections[0]
-      ? `${ch.sections[0].heading}: ${ch.sections[0].body}${
-          ch.sections[0].callout ? `\n\n[${ch.sections[0].callout.title}]: ${ch.sections[0].callout.text}` : ""
-        }`
+      ? `${ch.sections[0].heading}: ${ch.sections[0].body}${ch.sections[0].callout ? `\n\n[${ch.sections[0].callout.title}]: ${ch.sections[0].callout.text}` : ""
+      }`
       : ch.teacherIntro,
     solution: ch.sections
       .slice(1)

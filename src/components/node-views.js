@@ -10,6 +10,7 @@
 import { nodeChaptersData } from "../../books/node/explanations/chapters-data.js";
 import { nodeBookOverview, nodeVersionsMatrix, nodeFrameworksHistory } from "../../books/node/explanations/book-overview.js";
 import { nodeLabs } from "../../books/node/examples/node-labs.js";
+import { nodeAnimations } from "../../books/node/examples/node-animations.js";
 import { highlightCode } from "../utils/code-highlighter.js";
 import { getStudiedPatterns, togglePatternStudied } from "./sidebar.js";
 import { renderPatternExercises, renderQuizzesPage } from "./quiz-engine.js";
@@ -272,6 +273,7 @@ export function renderNodeChapterPage(container, chapterId) {
   const isStudied = studied.includes(ch.id);
   const lang = getLang();
   const loc = getLocalizedChapter(ch);
+  const hasVisualizer = Boolean(nodeAnimations[ch.id]);
   const badgeClass =
     ch.category === "core-eventloop"
       ? "badge-creational"
@@ -323,16 +325,21 @@ export function renderNodeChapterPage(container, chapterId) {
 
     <!-- Quick Jump Workspace Tabs -->
     <nav class="pe-section-jump-nav" aria-label="Seções do Capítulo">
-      <a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>
-      <a href="#sec-architecture" class="pe-jump-link" data-jump="sec-architecture">${t("tabArchitecture")}</a>
+      ${hasVisualizer ? `<a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>` : ""}
+      <a href="#sec-architecture" class="pe-jump-link ${hasVisualizer ? "" : "active"}" data-jump="sec-architecture">${t("tabArchitecture")}</a>
       <a href="#sec-code" class="pe-jump-link" data-jump="sec-code">${t("tabCode")}</a>
       <a href="#sec-quiz" class="pe-jump-link" data-jump="sec-quiz">${t("tabLabQuiz")}</a>
     </nav>
 
     <!-- 1. Interactive Step-by-Step Visualizer -->
+    ${
+      hasVisualizer
+        ? `
     <div id="sec-visualizer">
       <div id="pattern-visualizer-mount"></div>
-    </div>
+    </div>`
+        : ""
+    }
 
     <!-- 2. Problem, Solution & Architecture -->
     <div id="sec-architecture">
@@ -494,7 +501,7 @@ export function renderNodeChapterPage(container, chapterId) {
 
   // Visualizer Mount
   const vizMount = container.querySelector("#pattern-visualizer-mount");
-  if (vizMount) {
+  if (vizMount && hasVisualizer) {
     renderPatternVisualizer(vizMount, ch);
   }
 
@@ -558,9 +565,32 @@ export function renderNodeChapterPage(container, chapterId) {
     renderPatternExercises(inlineQuizContainer, ch.id);
   }
 
-  // Jump Nav Sticky
+  // Jump Nav Sticky & Smooth Scroll
   const jumpNav = container.querySelector(".pe-section-jump-nav");
   if (jumpNav) initStickyNav(jumpNav);
+  const jumpLinks = container.querySelectorAll(".pe-jump-link");
+
+  function setActiveJumpLink(targetId) {
+    jumpLinks.forEach((link) => {
+      const match = link.getAttribute("data-jump") === targetId;
+      link.classList.toggle("active", match);
+    });
+  }
+
+  jumpLinks.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute("data-jump");
+      setActiveJumpLink(targetId);
+      const targetSec = container.querySelector(`#${targetId}`);
+      if (targetSec) {
+        const headerOffset = 110;
+        const rect = targetSec.getBoundingClientRect();
+        const top = window.pageYOffset + rect.top - headerOffset;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    });
+  });
 }
 
 /**

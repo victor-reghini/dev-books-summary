@@ -123,6 +123,7 @@ function renderChapterCard(ch, studied, lang) {
   const loc = getCleanCodeLocalized(ch);
   const chapterNumber = ch.id.replace("cap-", "").padStart(2, "0");
   const chapterPrefix = getChapterNumberLabel(chapterNumber, lang);
+  const hasVisualizer = Boolean(cleanCodeAnimations[ch.id]);
   return `
     <a href="#/clean-code/capitulo/${ch.id}" class="pe-pattern-card cat-${ch.category}" data-card-cat="${ch.category}">
       <div class="pe-card-top">
@@ -235,9 +236,9 @@ function renderCleanCodeHomePage(container) {
     <!-- 17 Chapters Grouped by Part with Sticky ScrollSpy Targets -->
     <div class="cc-chapters-container" id="cc-chapters-grid">
       ${parts
-        .map((part) => {
-          const partChapters = cleanCodeChaptersData.filter((c) => c.category === part.cat);
-          return `
+      .map((part) => {
+        const partChapters = cleanCodeChaptersData.filter((c) => c.category === part.cat);
+        return `
             <section class="cc-chapter-section" id="${part.id}" data-section-cat="${part.cat}">
               <h2 class="cc-section-header">
                 <span class="cc-section-dot cat-${part.cat}"></span>
@@ -248,16 +249,16 @@ function renderCleanCodeHomePage(container) {
               </div>
             </section>
           `;
-        })
-        .join("")}
+      })
+      .join("")}
     </div>
 
     <!-- Book Authors & Core Philosophy Overview -->
     <h2 class="section-title mt-5">Autoria & Equipe Object Mentor • ${cleanCodeOverview.originalTitle} (${cleanCodeOverview.publicationYear})</h2>
     <div class="authors-grid">
       ${cleanCodeOverview.authors
-        .map(
-          (a) => `
+      .map(
+        (a) => `
         <div class="author-card">
           <div class="author-avatar">${a.avatar}</div>
           <div>
@@ -266,22 +267,22 @@ function renderCleanCodeHomePage(container) {
           </div>
         </div>
       `
-        )
-        .join("")}
+      )
+      .join("")}
     </div>
 
     <h2 class="section-title mt-4">${t("ccFiveSTitle")}</h2>
     <div class="grid-2 mt-3">
       ${getFiveSLocalized(lang)
-        .map(
-          (s) => `
+      .map(
+        (s) => `
         <div class="info-card">
           <h4 style="color: var(--accent-primary)">${s.name} • ${s.meaning}</h4>
           <p style="font-size: 0.9rem">${s.desc}</p>
         </div>
       `
-        )
-        .join("")}
+      )
+      .join("")}
     </div>
   `;
 
@@ -386,16 +387,16 @@ function renderCleanCodeChapterPage(container, chapterId) {
   const loc = getCleanCodeLocalized(ch);
   const chapterNumber = ch.id.replace("cap-", "").padStart(2, "0");
   const chapterPrefix = getChapterNumberLabel(chapterNumber, lang);
+  const hasVisualizer = Boolean(cleanCodeAnimations[ch.id]);
 
   container.innerHTML = `
     <!-- Top Navigation & Completion Bar -->
     <div class="page-action-header">
       <div class="pager-buttons">
-        ${
-          prevChapter
-            ? `<a href="#/clean-code/capitulo/${prevChapter.id}" class="pager-btn">← ${t("navPrev") || "Anterior"}: ${prevLoc.name}</a>`
-            : `<a href="#/clean-code" class="pager-btn">← ${t("navCleanCodeCatalog") || "Catálogo Código Limpo"}</a>`
-        }
+        ${prevChapter
+      ? `<a href="#/clean-code/capitulo/${prevChapter.id}" class="pager-btn">← ${t("navPrev") || "Anterior"}: ${prevLoc.name}</a>`
+      : `<a href="#/clean-code" class="pager-btn">← ${t("navCleanCodeCatalog") || "Catálogo Código Limpo"}</a>`
+    }
       </div>
 
       <button type="button" class="bookmark-action-btn ${isStudied ? "marked" : ""}" id="btn-toggle-bookmark">
@@ -403,11 +404,10 @@ function renderCleanCodeChapterPage(container, chapterId) {
       </button>
 
       <div class="pager-buttons">
-        ${
-          nextChapter
-            ? `<a href="#/clean-code/capitulo/${nextChapter.id}" class="pager-btn next-btn">${t("navNext") || "Próximo"}: ${nextLoc.name} →</a>`
-            : `<a href="#/clean-code/quizzes" class="pager-btn next-btn">${t("quizzesPractice") || "Quizzes & Prática"} →</a>`
-        }
+        ${nextChapter
+      ? `<a href="#/clean-code/capitulo/${nextChapter.id}" class="pager-btn next-btn">${t("navNext") || "Próximo"}: ${nextLoc.name} →</a>`
+      : `<a href="#/clean-code/quizzes" class="pager-btn next-btn">${t("quizzesPractice") || "Quizzes & Prática"} →</a>`
+    }
       </div>
     </div>
 
@@ -420,7 +420,7 @@ function renderCleanCodeChapterPage(container, chapterId) {
         ${ch.smellRefs?.length ? `<span class="badge badge-scope">Heurísticas: ${ch.smellRefs.join(", ")}</span>` : ""}
       </div>
 
-      <h1 class="page-title">${chapterPrefix} • ${loc.name} <small class="pattern-local-subtitle">(${loc.subtitle})</small></h1>
+      <h1 class="page-title">${loc.name} <small class="pattern-local-subtitle">(${loc.subtitle})</small></h1>
 
       <div class="callout callout-info" style="margin-top: 0.75rem; margin-bottom: 0">
         <h5>${t("intentTitle") || "Tese Central & Regra de Ouro (Robert C. Martin)"}</h5>
@@ -430,16 +430,20 @@ function renderCleanCodeChapterPage(container, chapterId) {
 
     <!-- Quick Jump Workspace Tabs (Sticky ScrollSpy Navigation) -->
     <nav class="pe-section-jump-nav" aria-label="Seções do Capítulo">
-      <a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>
-      <a href="#sec-architecture" class="pe-jump-link" data-jump="sec-architecture">${t("tabArchitecture")}</a>
+      ${hasVisualizer ? `<a href="#sec-visualizer" class="pe-jump-link active" data-jump="sec-visualizer">${t("tabVisualizer")}</a>` : ""}
+      <a href="#sec-architecture" class="pe-jump-link ${hasVisualizer ? "" : "active"}" data-jump="sec-architecture">${t("tabArchitecture")}</a>
       <a href="#sec-code" class="pe-jump-link" data-jump="sec-code">${t("tabCode")}</a>
       <a href="#sec-quiz" class="pe-jump-link" data-jump="sec-quiz">${t("tabLabQuiz")}</a>
     </nav>
 
     <!-- 1. Interactive Step-by-Step Visualizer & Object Inspector -->
+    ${hasVisualizer
+      ? `
     <div id="sec-visualizer">
       <div id="pattern-visualizer-mount"></div>
-    </div>
+    </div>`
+      : ""
+    }
 
     <!-- 2. Problem, Solution & Structure -->
     <div id="sec-architecture">
@@ -458,8 +462,8 @@ function renderCleanCodeChapterPage(container, chapterId) {
         <h5>Pilares e Regras Fundamentais:</h5>
         <ul style="padding-left: 1.25rem; font-size: 0.92rem; margin: 0.75rem 0; display: flex; flex-direction: column; gap: 0.5rem">
           ${ch.structure.participants
-            .map((part) => `<li><strong>${part.name}:</strong> ${part.role}</li>`)
-            .join("")}
+      .map((part) => `<li><strong>${part.name}:</strong> ${part.role}</li>`)
+      .join("")}
         </ul>
         <p class="text-muted" style="font-size: 0.88rem; margin-top: 0.75rem"><strong>Aplicação no Caso de Uso:</strong> ${ch.structure.collaborations}</p>
       </div>
@@ -522,27 +526,26 @@ function renderCleanCodeChapterPage(container, chapterId) {
       <div class="info-card">
         <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
           ${ch.relatedPatterns
-            .map((relId) => {
-              const target = cleanCodeChaptersData.find((c) => c.id === relId);
-              return target
-                ? `<a href="#/clean-code/capitulo/${target.id}" class="btn btn-sm btn-outline">${target.name}</a>`
-                : "";
-            })
-            .join("")}
+      .map((relId) => {
+        const target = cleanCodeChaptersData.find((c) => c.id === relId);
+        return target
+          ? `<a href="#/clean-code/capitulo/${target.id}" class="btn btn-sm btn-outline">${target.name}</a>`
+          : "";
+      })
+      .join("")}
         </div>
       </div>
     </div>
 
     <!-- 4. Interactive Playground & Quiz -->
     <div id="sec-quiz">
-      ${
-        ch.hasPlayground && cleanCodeLabs[ch.playgroundId]
-          ? `
+      ${ch.hasPlayground && cleanCodeLabs[ch.playgroundId]
+      ? `
         <h2 class="section-title">Laboratório Visual & Gráfico Interativo</h2>
         <div id="inline-lab-container"></div>
       `
-          : ""
-      }
+      : ""
+    }
 
       <h2 class="section-title">Exercícios de Fixação & Diagnóstico do Capítulo</h2>
       <div id="inline-quiz-container"></div>
@@ -558,25 +561,23 @@ function renderCleanCodeChapterPage(container, chapterId) {
     <!-- Bottom Navigation -->
     <div class="page-action-header mt-5">
       <div class="pager-buttons">
-        ${
-          prevChapter
-            ? `<a href="#/clean-code/capitulo/${prevChapter.id}" class="pager-btn">← Anterior: ${prevChapter.name}</a>`
-            : `<a href="#/clean-code" class="pager-btn">← Catálogo Código Limpo</a>`
-        }
+        ${prevChapter
+      ? `<a href="#/clean-code/capitulo/${prevChapter.id}" class="pager-btn">← Anterior: ${prevChapter.name}</a>`
+      : `<a href="#/clean-code" class="pager-btn">← Catálogo Código Limpo</a>`
+    }
       </div>
       <div class="pager-buttons">
-        ${
-          nextChapter
-            ? `<a href="#/clean-code/capitulo/${nextChapter.id}" class="pager-btn next-btn">Próximo: ${nextChapter.name} →</a>`
-            : `<a href="#/clean-code/quizzes" class="pager-btn next-btn">Quizzes & Prática →</a>`
-        }
+        ${nextChapter
+      ? `<a href="#/clean-code/capitulo/${nextChapter.id}" class="pager-btn next-btn">Próximo: ${nextChapter.name} →</a>`
+      : `<a href="#/clean-code/quizzes" class="pager-btn next-btn">Quizzes & Prática →</a>`
+    }
       </div>
     </div>
   `;
 
   // Mount Interactive Visualizer
   const vizMount = container.querySelector("#pattern-visualizer-mount");
-  if (vizMount) {
+  if (vizMount && hasVisualizer) {
     renderPatternVisualizer(vizMount, ch);
   }
 
@@ -589,7 +590,7 @@ function renderCleanCodeChapterPage(container, chapterId) {
     { id: "sec-architecture", el: container.querySelector("#sec-architecture") },
     { id: "sec-code", el: container.querySelector("#sec-code") },
     { id: "sec-quiz", el: container.querySelector("#sec-quiz") }
-  ];
+  ].filter((s) => Boolean(s.el));
 
   let isAutoScrollingJump = false;
   let jumpScrollTimer = null;
@@ -761,16 +762,16 @@ function renderCleanCodePrinciplesPage(container) {
         </thead>
         <tbody>
           ${cleanCodeOverview.fiveSPhilosophy
-            .map(
-              (s) => `
+      .map(
+        (s) => `
             <tr>
               <td><strong>${s.japanese}</strong></td>
               <td>${s.pt}</td>
               <td>${s.description}</td>
             </tr>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </tbody>
       </table>
     </div>
@@ -789,16 +790,16 @@ function renderCleanCodeEmergencePage(container) {
 
     <div class="grid-2 mt-4">
       ${cleanCodeOverview.beckSimpleDesignRules
-        .map(
-          (r) => `
+      .map(
+        (r) => `
         <div class="info-card">
           <span class="badge badge-creational">Prioridade #0${r.priority}</span>
           <h4 class="mt-2" style="font-size: 1.05rem">${r.rule}</h4>
           <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.5rem">${r.impact}</p>
         </div>
       `
-        )
-        .join("")}
+      )
+      .join("")}
     </div>
 
     <h2 class="section-title mt-5">Laboratório Interativo: Ciclo TDD & Diagnóstico F.I.R.S.T.</h2>
@@ -825,8 +826,8 @@ function renderCleanCodeCaseStudiesPage(container) {
 
     <div class="lexi-challenges-list">
       ${cs.studies
-        .map(
-          (s, idx) => `
+      .map(
+        (s, idx) => `
         <div class="info-card mt-3">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem">
             <h4 style="margin: 0">${s.name}</h4>
@@ -842,8 +843,8 @@ function renderCleanCodeCaseStudiesPage(container) {
           </div>
         </div>
       `
-        )
-        .join("")}
+      )
+      .join("")}
     </div>
   `;
 }
@@ -871,11 +872,11 @@ function renderCleanCodeSmellsMatrixPage(container) {
         />
         <div class="factory-selector-tabs" id="smells-cat-tabs">
           ${categories
-            .map(
-              (c, i) =>
-                `<button type="button" class="btn btn-tab ${i === 0 ? "active" : ""}" data-smell-cat="${c}">${c}</button>`
-            )
-            .join("")}
+      .map(
+        (c, i) =>
+          `<button type="button" class="btn btn-tab ${i === 0 ? "active" : ""}" data-smell-cat="${c}">${c}</button>`
+      )
+      .join("")}
         </div>
       </div>
     </div>

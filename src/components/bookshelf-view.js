@@ -34,7 +34,7 @@ export function renderBookshelfPage(container) {
         <span class="pe-hero-kicker">${t("mainBookshelfTag")}</span>
         <div class="pe-hero-stats">
           <span class="pe-stat-chip">5 Livros Clássicos Completos</span>
-          <span class="pe-stat-chip">75 Módulos Animados (375 Etapas)</span>
+          <span class="pe-stat-chip">53 Fluxogramas Estruturais (265 Etapas)</span>
           <span class="pe-stat-chip">35 Playgrounds & Gráficos</span>
           <span class="pe-stat-chip">Quizzes, Cenários & Mão na Massa</span>
         </div>
@@ -115,7 +115,7 @@ export function renderBookshelfPage(container) {
 
           <div class="bookshelf-feature-chips">
             <span class="pe-stat-chip">23 Padrões GoF</span>
-            <span class="pe-stat-chip">115 Etapas Animadas</span>
+            <span class="pe-stat-chip">23 Fluxogramas GoF (115 Etapas)</span>
             <span class="pe-stat-chip">9 Playgrounds</span>
             <span class="pe-stat-chip">Quizzes, Cenários & Mão na Massa</span>
           </div>
@@ -216,7 +216,7 @@ export function renderBookshelfPage(container) {
           <div class="bookshelf-feature-chips">
             <span class="pe-stat-chip">17 Capítulos</span>
             <span class="pe-stat-chip">66 Odores (C1–T9)</span>
-            <span class="pe-stat-chip">85 Etapas Animadas</span>
+            <span class="pe-stat-chip">11 Fluxogramas de Arquitetura (55 Etapas)</span>
             <span class="pe-stat-chip">6 Labs & Gráficos</span>
             <span class="pe-stat-chip">Quizzes & Refatoração</span>
           </div>
@@ -323,7 +323,7 @@ export function renderBookshelfPage(container) {
           <div class="bookshelf-feature-chips">
             <span class="pe-stat-chip">11 Capítulos</span>
             <span class="pe-stat-chip">Notação Big O</span>
-            <span class="pe-stat-chip">55 Etapas Animadas</span>
+            <span class="pe-stat-chip">10 Fluxogramas de Algoritmos (50 Etapas)</span>
             <span class="pe-stat-chip">8 Labs & Simuladores</span>
             <span class="pe-stat-chip">Exercícios Oficiais do Livro</span>
           </div>
@@ -425,7 +425,7 @@ export function renderBookshelfPage(container) {
           <div class="bookshelf-feature-chips">
             <span class="pe-stat-chip">12 Capítulos</span>
             <span class="pe-stat-chip">JDK 1.0 a 25 LTS</span>
-            <span class="pe-stat-chip">60 Etapas Animadas</span>
+            <span class="pe-stat-chip">5 Fluxogramas JVM & Pipelines (25 Etapas)</span>
             <span class="pe-stat-chip">6 Labs Interativos</span>
             <span class="pe-stat-chip">Spring Boot & Quarkus</span>
           </div>
@@ -528,7 +528,7 @@ export function renderBookshelfPage(container) {
           <div class="bookshelf-feature-chips">
             <span class="pe-stat-chip">12 Capítulos</span>
             <span class="pe-stat-chip">Node 0.10 a 24</span>
-            <span class="pe-stat-chip">60 Etapas Animadas</span>
+            <span class="pe-stat-chip">4 Fluxogramas Event Loop & Concorrência (20 Etapas)</span>
             <span class="pe-stat-chip">6 Labs Interativos</span>
             <span class="pe-stat-chip">Express, Fastify & NestJS</span>
           </div>

@@ -603,66 +603,7 @@ export const grokkingAlgorithmsAnimations = {
         state: { resultadoClassificacao: "Toranja", modoAlternativo: "Regressao por media", aplicacoesReais: "OCR, Recomendacoes Netflix" }
       }
     ]
-  },
-
-  "ga-cap-11": {
-    code: "A11",
-    layerIndex: 11,
-    scopeType: "Proximos Passos & Estruturas Avancadas",
-    nodes: [
-      { id: "LargeScaleData", label: "Fluxo Massivo de Dados", stereo: "«stream»", x: 130, y: 140, addr: "0xGA41", methods: ["consultarElemento()", "contarUnicos()"] },
-      { id: "BloomFilter", label: "Filtro de Bloom (Bits)", stereo: "«probabilistic»", x: 440, y: 80, addr: "0xGA42", methods: ["multiHash(k)", "testBitArray()"] },
-      { id: "InvertedIndex", label: "Indice Invertido", stereo: "«search»", x: 440, y: 240, addr: "0xGA43", methods: ["palavra -> [docs]"] },
-      { id: "ModernInfra", label: "Infraestrutura Distribuida", stereo: "«cluster»", x: 750, y: 160, addr: "0xGA44", methods: ["MapReduce", "SHA-256", "Simplex"] }
-    ],
-    links: [
-      { from: "LargeScaleData", to: "BloomFilter", label: "1. consulta presenca de URL" },
-      { from: "BloomFilter", to: "InvertedIndex", label: "2. evita consulta cara em disco" },
-      { from: "InvertedIndex", to: "ModernInfra", label: "3. mapeia busca distribuida" },
-      { from: "ModernInfra", to: "LargeScaleData", label: "4. resposta em milissegundos" }
-    ],
-    steps: [
-      {
-        title: "O Desafio da Escala Extrema",
-        narration: "Com bilhoes de paginas na web, estruturas de dados convencionais consomem memoria excessiva ou afogam os discos. Aditya Bhargava apresenta estruturas probabilisticas e avancadas.",
-        from: "LargeScaleData", to: "BloomFilter", call: "consultarURL('https://exemplo.com')",
-        activeNodes: ["LargeScaleData", "BloomFilter"],
-        stack: ["main()", "crawler.jaVisitou(url)"],
-        state: { escalaDados: "1 bilhao de URLs", memoriaDisponivel: "Restrita" }
-      },
-      {
-        title: "Filtro de Bloom: Resposta Instantanea sem Disco",
-        narration: "A URL passa por 3 funcoes hash que ativam bits em um array compacto. Se algum bit for 0, temos certeza absoluta: 'URL definitivamente NAO foi visitada'. Poupamos uma busca pesada no banco.",
-        from: "BloomFilter", to: "BloomFilter", call: "testarBits(h1, h2, h3) -> bit 4 e zero",
-        activeNodes: ["BloomFilter"],
-        stack: ["bloomFilter.contains(url)"],
-        state: { garantiaMatematica: "Zero falsos negativos", falsoPositivoPossivel: "Raro (~1%)", economiaIO: "99% das leituras evitadas" }
-      },
-      {
-        title: "Indice Invertido nos Motores de Busca",
-        narration: "Quando a busca prossegue, o motor consulta o Indice Invertido: uma tabela que mapeia termos diretamente para listas de documentos onde aparecem.",
-        from: "BloomFilter", to: "InvertedIndex", call: "buscarTermo('algoritmo')",
-        activeNodes: ["BloomFilter", "InvertedIndex"],
-        stack: ["searchEngine.query('algoritmo')"],
-        state: { indiceInvertido: { algoritmo: ["doc_12", "doc_84", "doc_991"] }, operacaoIntersecao: "O(1)" }
-      },
-      {
-        title: "Processamento Distribuido com MapReduce",
-        narration: "A agregacao de dados opera sobre clusters atraves de MapReduce: servidores mapeiam contagens locais em paralelo (map) e combinam os resultados consolidados (reduce).",
-        from: "InvertedIndex", to: "ModernInfra", call: "mapReduce(cluster)",
-        activeNodes: ["InvertedIndex", "ModernInfra"],
-        stack: ["distribuirTarefas()", "map()", "reduce()"],
-        state: { nosExecutando: 100, particionamento: "Paralelo", algoritmosConexos: "Transformada de Fourier, HyperLogLog" }
-      },
-      {
-        title: "A Jornada do Conhecimento Algoritmico",
-        narration: "De pesquisa binaria a criptografia Diffie-Hellman e Programacao Linear, algoritmos sao os blocos construtores que capacitam o desenvolvedor a resolver qualquer desafio computacional.",
-        from: "ModernInfra", to: "LargeScaleData", call: "concluirGuiaIlustrado()",
-        activeNodes: ["ModernInfra", "LargeScaleData"],
-        stack: ["livroConcluido() -> 11 capitulos dominados"],
-        state: { proximaFase: "B-Trees, FFT, Criptografia SHA", maestria: "Entendendo Algoritmos dominado com sucesso" }
-      }
-    ]
   }
 };
+
 

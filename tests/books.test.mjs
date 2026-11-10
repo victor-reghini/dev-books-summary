@@ -41,9 +41,9 @@ test("Padrões de Projeto (GoF): incorpora 100% do app original (23 padrões, 23
   }
 });
 
-test("Código Limpo (Clean Code): construído nos mesmos moldes (17 capítulos, 17 animações de 5 etapas, 6 labs gráficos, 66 heurísticas, código Sujo vs. Java/TS/Python e exercícios)", () => {
+test("Código Limpo (Clean Code): construído nos mesmos moldes (17 capítulos, 11 animações de 5 etapas, 6 labs gráficos, 66 heurísticas, código Sujo vs. Java/TS/Python e exercícios)", () => {
   assert.equal(cleanCodeBook.cleanCodeChaptersData.length, 17);
-  assert.equal(Object.keys(cleanCodeBook.cleanCodeAnimations).length, 17);
+  assert.equal(Object.keys(cleanCodeBook.cleanCodeAnimations).length, 11);
   assert.equal(Object.keys(cleanCodeBook.cleanCodeLabs).length, 6);
   assert.equal(cleanCodeBook.smellsCatalog.length, 66);
   assert.ok(cleanCodeBook.cleanCodeQuizzesData.length >= 34);
@@ -62,14 +62,15 @@ test("Código Limpo (Clean Code): construído nos mesmos moldes (17 capítulos, 
     assert.ok(ch.codeExamples.python.length > 20, `Cap. ${ch.number} precisa de código Python limpo`);
 
     const anim = cleanCodeBook.cleanCodeAnimations[ch.id];
-    assert.ok(anim, `Cap. ${ch.number} precisa de especificação de animação SVG`);
-    assert.equal(anim.steps.length, 5, `Cap. ${ch.number} precisa de 5 etapas animadas`);
+    if (anim) {
+      assert.equal(anim.steps.length, 5, `Cap. ${ch.number} precisa de 5 etapas animadas`);
+    }
   }
 });
 
-test("Entendendo Algoritmos (Grokking Algorithms): construído nos mesmos moldes (11 capítulos, 11 animações de 5 etapas, 8 labs gráficos, código Naive vs. Java/TS/Python e exercícios oficiais)", () => {
+test("Entendendo Algoritmos (Grokking Algorithms): construído nos mesmos moldes (11 capítulos, 10 animações de 5 etapas, 8 labs gráficos, código Naive vs. Java/TS/Python e exercícios oficiais)", () => {
   assert.equal(grokkingAlgorithmsBook.grokkingChaptersData.length, 11);
-  assert.equal(Object.keys(grokkingAlgorithmsBook.grokkingAlgorithmsAnimations).length, 11);
+  assert.equal(Object.keys(grokkingAlgorithmsBook.grokkingAlgorithmsAnimations).length, 10);
   assert.ok(Object.keys(grokkingAlgorithmsBook.grokkingAlgorithmsLabs).length >= 6);
   assert.ok(grokkingAlgorithmsBook.grokkingQuizzesData.length >= 22);
   assert.ok(grokkingAlgorithmsBook.grokkingScenariosData.length >= 5);
@@ -87,8 +88,9 @@ test("Entendendo Algoritmos (Grokking Algorithms): construído nos mesmos moldes
     assert.ok(ch.codeExamples.python.length > 20, `Cap. ${ch.number} precisa de código Python`);
 
     const anim = grokkingAlgorithmsBook.grokkingAlgorithmsAnimations[ch.id];
-    assert.ok(anim, `Cap. ${ch.number} precisa de especificação de animação SVG`);
-    assert.equal(anim.steps.length, 5, `Cap. ${ch.number} precisa de 5 etapas animadas`);
+    if (anim) {
+      assert.equal(anim.steps.length, 5, `Cap. ${ch.number} precisa de 5 etapas animadas`);
+    }
   }
 
   const grokkingViewsJs = fs.readFileSync(path.join(rootDir, "src/components/grokking-views.js"), "utf8");
@@ -105,9 +107,9 @@ test("Entendendo Algoritmos (Grokking Algorithms): construído nos mesmos moldes
   assert.ok(quizEngineJs.includes("grokkingQuizzesData"), "Quiz engine deve suportar quizzes de Grokking Algorithms");
 });
 
-test("Java (JVM & Ecossistema): construído nos mesmos moldes (12 capítulos, 12 animações de 5 etapas, 6 labs, matriz de versões JDK 1.0–25 LTS, Spring Boot, Quarkus e 24 quizzes)", () => {
+test("Java (JVM & Ecossistema): construído nos mesmos moldes (12 capítulos, 5 animações estruturais de 5 etapas, 6 labs, matriz de versões JDK 1.0–25 LTS, Spring Boot, Quarkus e 24 quizzes)", () => {
   assert.equal(javaBook.javaChaptersData.length, 12);
-  assert.equal(Object.keys(javaBook.javaAnimations).length, 12);
+  assert.equal(Object.keys(javaBook.javaAnimations).length, 5);
   assert.equal(Object.keys(javaBook.javaLabs).length, 6);
   assert.ok(javaBook.javaQuizzesData.length >= 24);
   assert.ok(javaBook.javaScenariosData.length >= 4);
@@ -128,8 +130,9 @@ test("Java (JVM & Ecossistema): construído nos mesmos moldes (12 capítulos, 12
     assert.ok(ch.codeExamples.python.length > 20, `Cap. ${ch.number} precisa de código Python equivalente`);
 
     const anim = javaBook.javaAnimations[ch.id];
-    assert.ok(anim, `Cap. ${ch.number} precisa de especificação de animação SVG`);
-    assert.equal(anim.steps.length, 5, `Cap. ${ch.number} precisa de 5 etapas animadas`);
+    if (anim) {
+      assert.equal(anim.steps.length, 5, `Cap. ${ch.number} precisa de 5 etapas animadas`);
+    }
   }
 
   const javaViewsJs = fs.readFileSync(path.join(rootDir, "src/components/java-views.js"), "utf8");
@@ -146,9 +149,9 @@ test("Java (JVM & Ecossistema): construído nos mesmos moldes (12 capítulos, 12
   assert.ok(quizEngineJs.includes("javaQuizzesData"), "Quiz engine deve suportar quizzes de Java");
 });
 
-test("Node.js (Event Loop & Frameworks): construído nos mesmos moldes (12 capítulos, 12 animações de 5 etapas, 6 labs, matriz de versões 0.10–24, Express 5, Fastify, NestJS e 24 quizzes)", () => {
+test("Node.js (Event Loop & Frameworks): construído nos mesmos moldes (12 capítulos, 4 animações estruturais de 5 etapas, 6 labs, matriz de versões 0.10–24, Express 5, Fastify, NestJS e 24 quizzes)", () => {
   assert.equal(nodeBook.nodeChaptersData.length, 12);
-  assert.equal(Object.keys(nodeBook.nodeAnimations).length, 12);
+  assert.equal(Object.keys(nodeBook.nodeAnimations).length, 4);
   assert.equal(Object.keys(nodeBook.nodeLabs).length, 6);
   assert.ok(nodeBook.nodeQuizzesData.length >= 24);
   assert.ok(nodeBook.nodeScenariosData.length >= 4);
@@ -169,8 +172,9 @@ test("Node.js (Event Loop & Frameworks): construído nos mesmos moldes (12 capí
     assert.ok(ch.codeExamples.python.length > 20, `Cap. ${ch.number} precisa de código Python equivalente`);
 
     const anim = nodeBook.nodeAnimations[ch.id];
-    assert.ok(anim, `Cap. ${ch.number} precisa de especificação de animação SVG`);
-    assert.equal(anim.steps.length, 5, `Cap. ${ch.number} precisa de 5 etapas animadas`);
+    if (anim) {
+      assert.equal(anim.steps.length, 5, `Cap. ${ch.number} precisa de 5 etapas animadas`);
+    }
   }
 
   const nodeViewsJs = fs.readFileSync(path.join(rootDir, "src/components/node-views.js"), "utf8");
